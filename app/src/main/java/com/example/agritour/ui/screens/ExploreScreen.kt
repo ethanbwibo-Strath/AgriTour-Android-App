@@ -1,6 +1,5 @@
 package com.example.agritour.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -19,12 +18,14 @@ import androidx.compose.ui.unit.dp
 import com.example.agritour.ui.components.ExploreFarmCard
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
+import androidx.compose.foundation.BorderStroke // Ensure this import exists
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreScreen(
     onHomeClick: () -> Unit,
-    onFarmClick: () -> Unit // Even though the button says "Book", it usually leads to details first
+    onFarmClick: () -> Unit,
+    onLearnClick: () -> Unit // <--- 1. Parameter exists here
 ) {
     Scaffold(
         containerColor = AgriBackground,
@@ -41,27 +42,29 @@ fun ExploreScreen(
             )
         },
         bottomBar = {
-            // We replicate the bottom bar here to show "Explore" as selected
             NavigationBar(containerColor = Color.White) {
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Home") },
                     selected = false,
-                    onClick = onHomeClick // Navigate back to Home
+                    onClick = onHomeClick
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
-                    selected = true, // Selected!
+                    selected = true,
                     onClick = { /* Already here */ },
                     colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
                 )
+
+                // --- THIS WAS LIKELY THE ISSUE ---
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
                     selected = false,
-                    onClick = { }
+                    onClick = onLearnClick // <--- 2. Must use the parameter here!
                 )
+
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
@@ -76,7 +79,7 @@ fun ExploreScreen(
                 .padding(paddingValues)
                 .fillMaxSize()
         ) {
-            // 1. Filters Row
+            // Filters Row
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -89,16 +92,14 @@ fun ExploreScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // 2. Vertical List of Farms
+            // Vertical List of Farms
             LazyColumn(
                 contentPadding = PaddingValues(16.dp)
             ) {
-                // Fake data mirroring wireframe
                 item { ExploreFarmCard("Green Valley Gardens", "Vegetables Farm", "Nairobi, Kenya", 4.8, onFarmClick) }
                 item { ExploreFarmCard("Highlands Coffee Estate", "Coffee Farm", "Limuru, Kenya", 4.5, onFarmClick) }
                 item { ExploreFarmCard("Serenity Herb Farm", "Herbs Farm", "Naivasha, Kenya", 4.9, onFarmClick) }
                 item { ExploreFarmCard("Tropical Fruit Oasis", "Fruits Farm", "Mombasa, Kenya", 4.6, onFarmClick) }
-                // Add padding at bottom for navigation bar
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }

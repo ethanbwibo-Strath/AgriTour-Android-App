@@ -14,6 +14,7 @@ import com.example.agritour.ui.screens.BookingScreen
 import com.example.agritour.ui.screens.ExploreScreen
 import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
+import com.example.agritour.ui.screens.LearningHubScreen
 
 @Composable
 fun FarmAppNavigation() {
@@ -23,15 +24,19 @@ fun FarmAppNavigation() {
         navController = navController,
         startDestination = AppScreens.HomeScreen.name
     ) {
-        // 1. Home Screen Route (Updated)
+        // 1. Home Screen (Update the onLearnClick)
         composable(route = AppScreens.HomeScreen.name) {
             HomeScreen(
-                onFarmClick = {
-                    navController.navigate(AppScreens.FarmDetailScreen.name)
-                },
+                onFarmClick = { navController.navigate(AppScreens.FarmDetailScreen.name) },
                 onExploreClick = {
-                    // Navigate to Explore, avoiding building up stack
                     navController.navigate(AppScreens.ExploreScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onLearnClick = { // <--- ADD THIS
+                    navController.navigate(AppScreens.LearningHubScreen.name) {
                         popUpTo(AppScreens.HomeScreen.name) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
@@ -40,7 +45,7 @@ fun FarmAppNavigation() {
             )
         }
 
-        // 2. Explore Screen Route (Implemented)
+        // 2. Explore Screen Route
         composable(route = AppScreens.ExploreScreen.name) {
             ExploreScreen(
                 onHomeClick = {
@@ -49,8 +54,14 @@ fun FarmAppNavigation() {
                     }
                 },
                 onFarmClick = {
-                    // For now, clicking "Book Visit" on the list goes to Details
                     navController.navigate(AppScreens.FarmDetailScreen.name)
+                },
+                onLearnClick = {
+                    navController.navigate(AppScreens.LearningHubScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
@@ -74,6 +85,27 @@ fun FarmAppNavigation() {
                 onConfirmClick = {
                     // In a real app, this would verify payment then navigate
                     navController.popBackStack(AppScreens.HomeScreen.name, inclusive = false)
+                }
+            )
+        }
+
+        // 5. Learning Hub Route (NEW)
+        composable(route = AppScreens.LearningHubScreen.name) {
+            LearningHubScreen(
+                onHomeClick = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
+                },
+                onExploreClick = {
+                    navController.navigate(AppScreens.ExploreScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onArticleClick = {
+                    // Placeholder: In a real app, this would open a WebView or Details screen
                 }
             )
         }
