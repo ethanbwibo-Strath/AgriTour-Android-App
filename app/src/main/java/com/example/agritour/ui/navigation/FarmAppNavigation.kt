@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.agritour.ui.screens.HomeScreen
 
 @Composable
 fun FarmAppNavigation() {
@@ -20,8 +21,12 @@ fun FarmAppNavigation() {
     ) {
         // 1. Home Screen Route
         composable(route = AppScreens.HomeScreen.name) {
-            // Placeholder for now
-            PlaceholderScreen("Home Screen")
+            HomeScreen(
+                onFarmClick = {
+                    // Navigate to details (We will implement the real link later)
+                    navController.navigate(AppScreens.FarmDetailScreen.name)
+                }
+            )
         }
 
         // 2. Explore Screen Route
