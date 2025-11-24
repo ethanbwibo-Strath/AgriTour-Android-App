@@ -9,7 +9,9 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+
 import com.example.agritour.ui.screens.BookingScreen
+import com.example.agritour.ui.screens.ExploreScreen
 import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
 
@@ -21,19 +23,36 @@ fun FarmAppNavigation() {
         navController = navController,
         startDestination = AppScreens.HomeScreen.name
     ) {
-        // 1. Home Screen Route
+        // 1. Home Screen Route (Updated)
         composable(route = AppScreens.HomeScreen.name) {
             HomeScreen(
                 onFarmClick = {
-                    // Navigate to details (We will implement the real link later)
                     navController.navigate(AppScreens.FarmDetailScreen.name)
+                },
+                onExploreClick = {
+                    // Navigate to Explore, avoiding building up stack
+                    navController.navigate(AppScreens.ExploreScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
 
-        // 2. Explore Screen Route
+        // 2. Explore Screen Route (Implemented)
         composable(route = AppScreens.ExploreScreen.name) {
-            PlaceholderScreen("Explore Farms")
+            ExploreScreen(
+                onHomeClick = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
+                },
+                onFarmClick = {
+                    // For now, clicking "Book Visit" on the list goes to Details
+                    navController.navigate(AppScreens.FarmDetailScreen.name)
+                }
+            )
         }
 
         // 3. Farm Details Route

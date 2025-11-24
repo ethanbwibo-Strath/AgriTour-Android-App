@@ -11,8 +11,8 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Book
+import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,25 +29,25 @@ import com.example.agritour.ui.theme.TextBlack
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onFarmClick: () -> Unit
+    onFarmClick: () -> Unit,
+    onExploreClick: () -> Unit, // <--- Added Parameter
+    onLearnClick: () -> Unit = {} // Added for future use
 ) {
     val scrollState = rememberScrollState()
 
     Scaffold(
-        containerColor = AgriBackground, // Light grey/green bg
-        // 1. Custom Top Bar
+        containerColor = AgriBackground,
         topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .statusBarsPadding(), // Avoids notch
+                    .statusBarsPadding(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Logo Area
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Simple Green Box to represent Logo
                     Box(
                         modifier = Modifier
                             .size(32.dp)
@@ -55,7 +55,7 @@ fun HomeScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Search, // Placeholder for Leaf logo
+                            imageVector = Icons.Default.Search,
                             contentDescription = null,
                             tint = Color.White,
                             modifier = Modifier.size(20.dp)
@@ -95,20 +95,23 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Home") },
                     selected = true,
-                    onClick = { },
+                    onClick = { /* Stay on Home */ },
                     colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
                 )
+
+                // --- THE FIX IS HERE ---
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
                     selected = false,
-                    onClick = { }
+                    onClick = onExploreClick // <--- Now it triggers the navigation!
                 )
+
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
                     selected = false,
-                    onClick = { }
+                    onClick = onLearnClick
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
@@ -127,12 +130,11 @@ fun HomeScreen(
                 .padding(horizontal = 16.dp)
         ) {
 
-            // 3. The New Hero Section
-            HomeHeroSection(onBookClick = { /* Scroll to farms */ })
+            HomeHeroSection(onBookClick = onExploreClick) // Link the "Book Now" banner too!
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 4. Search Filter Cards (Visual only based on screenshot)
+            // Search Filter Cards
             Card(
                 colors = CardDefaults.cardColors(containerColor = Color.White),
                 shape = RoundedCornerShape(12.dp),
@@ -144,9 +146,9 @@ fun HomeScreen(
                     FakeSearchField("Search by crop type (e.g., Coffee)")
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
-                        onClick = {},
+                        onClick = onExploreClick, // Link this button too
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF5F7F5)), // Light grey button
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF5F7F5)),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Text("Search Farms", color = TextBlack)
@@ -156,7 +158,6 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 5. Featured Farms (Top Rated)
             Text(
                 "Top Rated Farms",
                 style = MaterialTheme.typography.titleLarge,
@@ -168,23 +169,16 @@ fun HomeScreen(
 
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(bottom = 24.dp) // Add padding at bottom
+                contentPadding = PaddingValues(bottom = 24.dp)
             ) {
-                item {
-                    FarmCard("Green Valley Organic", "Kakamega, Kenya", "Ksh 500", 4.8, onFarmClick)
-                }
-                item {
-                    FarmCard("Sunrise Dairy", "Rift Valley, Kenya", "Ksh 800", 4.9, onFarmClick)
-                }
-                item {
-                    FarmCard("Kajiado Poultry", "Kajiado, Kenya", "Ksh 350", 4.5, onFarmClick)
-                }
+                item { FarmCard("Green Valley Organic", "Kakamega, Kenya", "Ksh 500", 4.8, onFarmClick) }
+                item { FarmCard("Sunrise Dairy", "Rift Valley, Kenya", "Ksh 800", 4.9, onFarmClick) }
+                item { FarmCard("Kajiado Poultry", "Kajiado, Kenya", "Ksh 350", 4.5, onFarmClick) }
             }
         }
     }
 }
 
-// Helper composable for the grey search inputs
 @Composable
 fun FakeSearchField(text: String) {
     Row(
