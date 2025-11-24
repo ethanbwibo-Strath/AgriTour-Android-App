@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.agritour.ui.screens.BookingScreen
 import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
 
@@ -47,9 +48,15 @@ fun FarmAppNavigation() {
             )
         }
 
-        // 4. Booking Screen Route (Still a placeholder for now)
+        // 4. Booking Screen Route
         composable(route = AppScreens.BookingScreen.name) {
-            PlaceholderScreen("Booking Flow - Select Date & Group")
+            BookingScreen(
+                onBackClick = { navController.popBackStack() },
+                onConfirmClick = {
+                    // In a real app, this would verify payment then navigate
+                    navController.popBackStack(AppScreens.HomeScreen.name, inclusive = false)
+                }
+            )
         }
 
         // ... We will add the other routes as we build the screens
