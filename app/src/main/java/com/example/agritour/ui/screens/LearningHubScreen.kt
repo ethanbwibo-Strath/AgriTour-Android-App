@@ -24,7 +24,8 @@ import com.example.agritour.ui.theme.AgriGreen
 fun LearningHubScreen(
     onHomeClick: () -> Unit,
     onExploreClick: () -> Unit,
-    onArticleClick: () -> Unit
+    onArticleClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     // Local state for the filter
     var selectedFilter by remember { mutableStateOf("All") }
@@ -64,7 +65,7 @@ fun LearningHubScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }

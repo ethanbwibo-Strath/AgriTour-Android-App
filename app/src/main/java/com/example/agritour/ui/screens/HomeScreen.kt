@@ -30,8 +30,9 @@ import com.example.agritour.ui.theme.TextBlack
 @Composable
 fun HomeScreen(
     onFarmClick: () -> Unit,
-    onExploreClick: () -> Unit, // <--- Added Parameter
-    onLearnClick: () -> Unit = {} // Added for future use
+    onExploreClick: () -> Unit,
+    onLearnClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -117,7 +118,7 @@ fun HomeScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }

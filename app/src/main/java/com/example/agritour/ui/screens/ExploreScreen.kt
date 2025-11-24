@@ -25,7 +25,8 @@ import androidx.compose.foundation.BorderStroke // Ensure this import exists
 fun ExploreScreen(
     onHomeClick: () -> Unit,
     onFarmClick: () -> Unit,
-    onLearnClick: () -> Unit // <--- 1. Parameter exists here
+    onLearnClick: () -> Unit,
+    onProfileClick: () -> Unit
 ) {
     Scaffold(
         containerColor = AgriBackground,
@@ -69,7 +70,7 @@ fun ExploreScreen(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
-                    onClick = { }
+                    onClick = onProfileClick
                 )
             }
         }

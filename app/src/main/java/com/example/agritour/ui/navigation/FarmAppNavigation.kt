@@ -15,6 +15,7 @@ import com.example.agritour.ui.screens.ExploreScreen
 import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
 import com.example.agritour.ui.screens.LearningHubScreen
+import com.example.agritour.ui.screens.ProfileScreen
 
 @Composable
 fun FarmAppNavigation() {
@@ -24,20 +25,25 @@ fun FarmAppNavigation() {
         navController = navController,
         startDestination = AppScreens.HomeScreen.name
     ) {
-        // 1. Home Screen (Update the onLearnClick)
+        // 1. Home Screen
         composable(route = AppScreens.HomeScreen.name) {
             HomeScreen(
                 onFarmClick = { navController.navigate(AppScreens.FarmDetailScreen.name) },
                 onExploreClick = {
                     navController.navigate(AppScreens.ExploreScreen.name) {
-                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
                 },
-                onLearnClick = { // <--- ADD THIS
+                onLearnClick = {
                     navController.navigate(AppScreens.LearningHubScreen.name) {
-                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                // Add this if you updated HomeScreen signature, otherwise remove
+                onProfileClick = {
+                    navController.navigate(AppScreens.ProfileScreen.name) {
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -45,7 +51,7 @@ fun FarmAppNavigation() {
             )
         }
 
-        // 2. Explore Screen Route
+        // 2. Explore Screen
         composable(route = AppScreens.ExploreScreen.name) {
             ExploreScreen(
                 onHomeClick = {
@@ -53,12 +59,15 @@ fun FarmAppNavigation() {
                         popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
                     }
                 },
-                onFarmClick = {
-                    navController.navigate(AppScreens.FarmDetailScreen.name)
-                },
+                onFarmClick = { navController.navigate(AppScreens.FarmDetailScreen.name) },
                 onLearnClick = {
                     navController.navigate(AppScreens.LearningHubScreen.name) {
-                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onProfileClick = {
+                    navController.navigate(AppScreens.ProfileScreen.name) {
                         launchSingleTop = true
                         restoreState = true
                     }
@@ -66,30 +75,25 @@ fun FarmAppNavigation() {
             )
         }
 
-        // 3. Farm Details Route
+        // 3. Farm Detail Screen
         composable(route = AppScreens.FarmDetailScreen.name) {
             FarmDetailScreen(
-                onBackClick = {
-                    navController.popBackStack() // Go back to Home
-                },
-                onBookClick = {
-                    navController.navigate(AppScreens.BookingScreen.name)
-                }
+                onBackClick = { navController.popBackStack() },
+                onBookClick = { navController.navigate(AppScreens.BookingScreen.name) }
             )
         }
 
-        // 4. Booking Screen Route
+        // 4. Booking Screen
         composable(route = AppScreens.BookingScreen.name) {
             BookingScreen(
                 onBackClick = { navController.popBackStack() },
                 onConfirmClick = {
-                    // In a real app, this would verify payment then navigate
                     navController.popBackStack(AppScreens.HomeScreen.name, inclusive = false)
                 }
             )
         }
 
-        // 5. Learning Hub Route (NEW)
+        // 5. Learning Hub Screen
         composable(route = AppScreens.LearningHubScreen.name) {
             LearningHubScreen(
                 onHomeClick = {
@@ -99,18 +103,42 @@ fun FarmAppNavigation() {
                 },
                 onExploreClick = {
                     navController.navigate(AppScreens.ExploreScreen.name) {
-                        popUpTo(AppScreens.HomeScreen.name) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
                 },
-                onArticleClick = {
-                    // Placeholder: In a real app, this would open a WebView or Details screen
+                onArticleClick = { /* Open Article */ },
+                onProfileClick = {
+                    navController.navigate(AppScreens.ProfileScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
 
-        // ... We will add the other routes as we build the screens
+        // 6. Profile Screen (NEW)
+        composable(route = AppScreens.ProfileScreen.name) {
+            ProfileScreen(
+                onHomeClick = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
+                },
+                onExploreClick = {
+                    navController.navigate(AppScreens.ExploreScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onLearnClick = {
+                    navController.navigate(AppScreens.LearningHubScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            )
+        }
     }
 }
 
