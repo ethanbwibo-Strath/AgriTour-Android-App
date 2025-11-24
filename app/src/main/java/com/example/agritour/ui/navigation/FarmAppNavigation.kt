@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
 
 @Composable
@@ -36,7 +37,19 @@ fun FarmAppNavigation() {
 
         // 3. Farm Details Route
         composable(route = AppScreens.FarmDetailScreen.name) {
-            PlaceholderScreen("Farm Details")
+            FarmDetailScreen(
+                onBackClick = {
+                    navController.popBackStack() // Go back to Home
+                },
+                onBookClick = {
+                    navController.navigate(AppScreens.BookingScreen.name)
+                }
+            )
+        }
+
+        // 4. Booking Screen Route (Still a placeholder for now)
+        composable(route = AppScreens.BookingScreen.name) {
+            PlaceholderScreen("Booking Flow - Select Date & Group")
         }
 
         // ... We will add the other routes as we build the screens
