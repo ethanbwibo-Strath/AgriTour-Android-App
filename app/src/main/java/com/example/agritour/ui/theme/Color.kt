@@ -7,11 +7,12 @@ val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
 
 // Your Custom AgriTour Colors
-val AgriGreen = Color(0xFF2ECC71) // The main vibrant green
-val AgriDarkGreen = Color(0xFF27AE60) // Slightly darker for gradients/text
-val AgriBackground = Color(0xFFF5F7F5) // Light grey/green background
-val TextBlack = Color(0xFF2D3436)
-val TextGrey = Color(0xFF464B50)
+val AgriGreen = Color(0xFF2ECC71)
+val AgriDarkGreen = Color(0xFF27AE60)
+val AgriBackground = Color(0xFFF5F7F5)
+val TextBlack = Color(0xFF000000)
+val TextGrey = Color(0xFF424242)
+val BorderColor = Color(0xFF9E9E9E)
 
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)

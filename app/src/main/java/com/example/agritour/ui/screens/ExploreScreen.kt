@@ -19,6 +19,8 @@ import com.example.agritour.ui.components.ExploreFarmCard
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
 import androidx.compose.foundation.BorderStroke // Ensure this import exists
+import com.example.agritour.ui.theme.TextBlack
+import com.example.agritour.ui.theme.TextGrey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +41,12 @@ fun ExploreScreen(
                         fontWeight = FontWeight.Bold
                     )
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = AgriBackground)
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = AgriBackground,
+                    titleContentColor = TextBlack,
+                    navigationIconContentColor = TextBlack,
+                    actionIconContentColor = TextBlack
+                )
             )
         },
         bottomBar = {
@@ -55,10 +62,15 @@ fun ExploreScreen(
                     label = { Text("Explore") },
                     selected = true,
                     onClick = { /* Already here */ },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AgriGreen,
+                        selectedTextColor = AgriGreen,
+                        indicatorColor = Color.White,
+                        unselectedIconColor = TextBlack,
+                        unselectedTextColor = TextBlack
+                    )
                 )
 
-                // --- THIS WAS LIKELY THE ISSUE ---
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
@@ -83,7 +95,7 @@ fun ExploreScreen(
             // Filters Row
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(3) { index ->
                     val labels = listOf("Plant Type", "Experience Level", "Location")

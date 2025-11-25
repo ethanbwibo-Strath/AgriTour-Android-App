@@ -25,6 +25,7 @@ import com.example.agritour.ui.components.HomeHeroSection
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.TextBlack
+import com.example.agritour.ui.theme.TextGrey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -97,7 +98,13 @@ fun HomeScreen(
                     label = { Text("Home") },
                     selected = true,
                     onClick = { /* Stay on Home */ },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = AgriGreen,
+                            selectedTextColor = AgriGreen,
+                            indicatorColor = Color.White,
+                            unselectedIconColor = TextBlack,
+                            unselectedTextColor = TextBlack
+                        )
                 )
 
                 // --- THE FIX IS HERE ---

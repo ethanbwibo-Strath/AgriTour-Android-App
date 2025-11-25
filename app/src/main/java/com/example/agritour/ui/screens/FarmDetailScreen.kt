@@ -68,7 +68,12 @@ fun FarmDetailScreen(
                         Icon(Icons.Default.MoreVert, contentDescription = "Menu")
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color.White,
+                    titleContentColor = TextBlack,
+                    navigationIconContentColor = TextBlack,
+                    actionIconContentColor = TextBlack
+                )
             )
         },
 

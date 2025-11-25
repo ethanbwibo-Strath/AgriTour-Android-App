@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import com.example.agritour.ui.components.LearningCard
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
+import com.example.agritour.ui.theme.TextBlack
+import com.example.agritour.ui.theme.TextGrey
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,12 @@ fun LearningHubScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Learning Hub", fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = AgriBackground)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = AgriBackground,
+                    titleContentColor = TextBlack,
+                    navigationIconContentColor = TextBlack,
+                    actionIconContentColor = TextBlack
+                )
             )
         },
         bottomBar = {
@@ -59,7 +66,13 @@ fun LearningHubScreen(
                     label = { Text("Learn") },
                     selected = true,
                     onClick = { /* Stay here */ },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AgriGreen,
+                        selectedTextColor = AgriGreen,
+                        indicatorColor = Color.White,
+                        unselectedIconColor = TextBlack,
+                        unselectedTextColor = TextBlack
+                    )
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
@@ -74,7 +87,7 @@ fun LearningHubScreen(
 
             // 1. Categories Filter Row
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 2.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filters.size) { index ->

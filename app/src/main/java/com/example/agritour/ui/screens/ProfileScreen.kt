@@ -74,7 +74,13 @@ fun ProfileScreen(
                     label = { Text("Profile") },
                     selected = true,
                     onClick = { /* Already here */ },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AgriGreen,
+                        selectedTextColor = AgriGreen,
+                        indicatorColor = Color.White,
+                        unselectedIconColor = TextBlack,
+                        unselectedTextColor = TextBlack
+                    )
                 )
             }
         }
@@ -140,7 +146,7 @@ fun ProfileScreen(
                     Text(
                         text = if (isFarmer) "Manage your farm listings" else "alex.kamau@student.sku.ac.ke",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextGrey
+                        color = TextBlack
                     )
                 }
             }
@@ -155,6 +161,7 @@ fun ProfileScreen(
                     text = if (isFarmer) "Farm Management" else "My Account",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
+                    color = TextBlack,
                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
                 )
 
@@ -186,6 +193,7 @@ fun ProfileScreen(
                     text = "General",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
+                    color = TextBlack,
                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
                 )
 
@@ -223,9 +231,6 @@ fun ProfileScreen(
 fun Modifier.scale(scale: Float): Modifier = this.then(
     Modifier.graphicsLayer(scaleX = scale, scaleY = scale)
 )
-
-// Ensure this import is added at the top:
-
 
 @Composable
 fun MenuCard(content: @Composable ColumnScope.() -> Unit) {
