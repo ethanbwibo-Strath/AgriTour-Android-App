@@ -13,9 +13,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage // Ensure Coil is imported
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
@@ -26,6 +28,7 @@ fun ExploreFarmCard(
     farmType: String,
     location: String,
     rating: Double,
+    imageUrl: String, // <--- NEW PARAMETER
     onBookClick: () -> Unit
 ) {
     Card(
@@ -42,15 +45,23 @@ fun ExploreFarmCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(180.dp)
-                    .background(Color.LightGray) // Placeholder for AsyncImage
+                    .background(Color.LightGray)
             ) {
+                // Real Image using Coil
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = farmName,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+
                 // Gradient for readability
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
                             Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)),
+                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.6f)),
                                 startY = 100f
                             )
                         )

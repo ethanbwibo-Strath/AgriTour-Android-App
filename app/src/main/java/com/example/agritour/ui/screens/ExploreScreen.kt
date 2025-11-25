@@ -18,18 +18,28 @@ import androidx.compose.ui.unit.dp
 import com.example.agritour.ui.components.ExploreFarmCard
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
-import androidx.compose.foundation.BorderStroke // Ensure this import exists
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.runtime.collectAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
 
+import com.example.agritour.ui.viewmodel.HomeViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.lazy.items
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExploreScreen(
     onHomeClick: () -> Unit,
     onFarmClick: () -> Unit,
     onLearnClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
 ) {
+    val farms by viewModel.farms.collectAsState()
+
     Scaffold(
         containerColor = AgriBackground,
         topBar = {
@@ -109,10 +119,17 @@ fun ExploreScreen(
             LazyColumn(
                 contentPadding = PaddingValues(16.dp)
             ) {
-                item { ExploreFarmCard("Green Valley Gardens", "Vegetables Farm", "Nairobi, Kenya", 4.8, onFarmClick) }
-                item { ExploreFarmCard("Highlands Coffee Estate", "Coffee Farm", "Limuru, Kenya", 4.5, onFarmClick) }
-                item { ExploreFarmCard("Serenity Herb Farm", "Herbs Farm", "Naivasha, Kenya", 4.9, onFarmClick) }
-                item { ExploreFarmCard("Tropical Fruit Oasis", "Fruits Farm", "Mombasa, Kenya", 4.6, onFarmClick) }
+                items(farms) { farm ->
+                    ExploreFarmCard(
+                        farmName = farm.name,
+                        farmType = farm.type, // Make sure your Firestore has a 'type' field, or default to "Mixed Farm"
+                        location = farm.location,
+                        rating = farm.rating,
+                        imageUrl = farm.imageUrl, // Pass the real image
+                        onBookClick = onFarmClick
+                    )
+                }
+
                 item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
