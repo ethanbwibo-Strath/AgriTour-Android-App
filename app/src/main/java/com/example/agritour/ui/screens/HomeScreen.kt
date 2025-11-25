@@ -27,15 +27,24 @@ import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.foundation.lazy.items
+import com.example.agritour.ui.viewmodel.HomeViewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     onFarmClick: () -> Unit,
     onExploreClick: () -> Unit,
     onLearnClick: () -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+
+    viewModel: HomeViewModel = viewModel()
 ) {
     val scrollState = rememberScrollState()
+    val farms by viewModel.farms.collectAsState()
 
     Scaffold(
         containerColor = AgriBackground,
@@ -114,7 +123,6 @@ fun HomeScreen(
                     selected = false,
                     onClick = onExploreClick // <--- Now it triggers the navigation!
                 )
-
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
@@ -179,9 +187,16 @@ fun HomeScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = PaddingValues(bottom = 24.dp)
             ) {
-                item { FarmCard("Green Valley Organic", "Kakamega, Kenya", "Ksh 500", 4.8, onFarmClick) }
-                item { FarmCard("Sunrise Dairy", "Rift Valley, Kenya", "Ksh 800", 4.9, onFarmClick) }
-                item { FarmCard("Kajiado Poultry", "Kajiado, Kenya", "Ksh 350", 4.5, onFarmClick) }
+                items(farms) { farm ->
+                    FarmCard(
+                        farmName = farm.name,
+                        location = farm.location,
+                        price = "Ksh ${farm.price}",
+                        rating = farm.rating,
+                        imageUrl = farm.imageUrl, // Pass the URL from Firestore
+                        onClick = onFarmClick
+                    )
+                }
             }
         }
     }

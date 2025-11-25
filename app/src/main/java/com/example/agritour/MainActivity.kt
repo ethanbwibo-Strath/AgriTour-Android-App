@@ -15,7 +15,8 @@ import com.example.agritour.ui.navigation.FarmAppNavigation
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge() // Makes app full screen
+        enableEdgeToEdge()
+
         setContent {
             AgriTourTheme {
                 Surface(
