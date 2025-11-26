@@ -81,25 +81,32 @@ fun FarmAppNavigation() {
 
         // 3. Farm Detail Screen
         composable(
-            route = "${AppScreens.FarmDetailScreen.name}/{farmId}", // Define the placeholder
-            arguments = listOf(navArgument("farmId") { type = NavType.StringType }) // Define the type
-        ) { backStackEntry ->
-            // Extract the ID from the URL
-            val farmId = backStackEntry.arguments?.getString("farmId") ?: ""
-
+                route = "${AppScreens.FarmDetailScreen.name}/{farmId}",
+                arguments = listOf(navArgument("farmId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val farmId = backStackEntry.arguments?.getString("farmId") ?: ""
             FarmDetailScreen(
-                farmId = farmId, // Pass it to the screen
-                onBackClick = { navController.popBackStack() },
-                onBookClick = { navController.navigate(AppScreens.BookingScreen.name) }
-            )
-        }
+                    farmId = farmId,
+                    onBackClick = { navController.popBackStack() },
+                    onBookClick = { navController.navigate("${AppScreens.BookingScreen.name}/$farmId") }
+                )
+            }
 
         // 4. Booking Screen
-        composable(route = AppScreens.BookingScreen.name) {
-            BookingScreen(
+        composable(
+            route = "${AppScreens.BookingScreen.name}/{farmId}", // <--- Accepts ID
+            arguments = listOf(navArgument("farmId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getString("farmId") ?: ""
+
+        BookingScreen(
+                farmId = farmId, // <--- We will add this parameter to the screen next
                 onBackClick = { navController.popBackStack() },
                 onConfirmClick = {
-                    navController.popBackStack(AppScreens.HomeScreen.name, inclusive = false)
+                    // Navigate to Home, clearing the stack so they can't "back" into the booking flow
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
                 }
             )
         }

@@ -55,4 +55,16 @@ class FarmRepository {
                 .addOnFailureListener { Log.e("FarmRepo", "Failed to save ${farm.name}") }
         }
     }
+
+    private val bookingsCollection = db.collection("bookings")
+
+    suspend fun saveBooking(booking: Booking): Boolean {
+        return try {
+            bookingsCollection.add(booking).await()
+            true // Success
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error saving booking", e)
+            false // Failure
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.example.agritour.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.agritour.data.Booking
 import com.example.agritour.data.Farm
 import com.example.agritour.data.FarmRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,4 +61,32 @@ class HomeViewModel : ViewModel() {
     }
 
     fun getFarmById(id: String): Farm? = allFarmsCache.find { it.id == id }
+
+    // ... inside HomeViewModel class ...
+
+    // Helper to save booking
+    fun createBooking(
+        farmId: String,
+        farmName: String,
+        date: String,
+        time: String,
+        groupSize: Int,
+        totalPrice: Int,
+        paymentMethod: String,
+        onResult: (Boolean) -> Unit
+    ) {
+        viewModelScope.launch {
+            val booking = Booking(
+                farmId = farmId,
+                farmName = farmName,
+                date = date,
+                time = time,
+                groupSize = groupSize,
+                totalPrice = totalPrice,
+                paymentMethod = paymentMethod
+            )
+            val success = repository.saveBooking(booking)
+            onResult(success)
+        }
+    }
 }

@@ -30,23 +30,31 @@ import androidx.compose.ui.unit.dp
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.agritour.ui.viewmodel.HomeViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookingScreen(
+    farmId: String,
     onBackClick: () -> Unit,
-    onConfirmClick: () -> Unit
+    onConfirmClick: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
 ) {
-    // State for the form
-    var date by remember { mutableStateOf("2024-10-26") } // Default for UI demo
-    var time by remember { mutableStateOf("14:00") }
-    var groupSize by remember { mutableIntStateOf(4) } // Minimum 4
-    var selectedPayment by remember { mutableStateOf("M-Pesa") }
-
-    val pricePerPerson = 500
-    val totalAmount = groupSize * pricePerPerson
 
     val context = LocalContext.current
+
+    val farm = viewModel.getFarmById(farmId)
+    val pricePerPerson = farm?.price ?: 0
+    val farmName = farm?.name ?: "Unknown Farm"
+
+
+    var date by remember { mutableStateOf("2024-10-26") }
+    var time by remember { mutableStateOf("14:00") }
+    var groupSize by remember { mutableIntStateOf(4) }
+    var selectedPayment by remember { mutableStateOf("M-Pesa") }
+    var isBooking by remember { mutableStateOf(false) }
+    val totalAmount = groupSize * pricePerPerson
 
     Scaffold(
         topBar = {
@@ -71,27 +79,44 @@ fun BookingScreen(
                 )
             )
         },
+
         bottomBar = {
-            // Confirm Button at bottom
             Button(
                 onClick = {
-                    Toast.makeText(context, "Booking Confirmed for Ksh $totalAmount", Toast.LENGTH_SHORT).show()
-                    onConfirmClick()
+                    if (!isBooking) {
+                        isBooking = true
+                        // 4. Save to Firestore
+                        viewModel.createBooking(
+                            farmId = farmId,
+                            farmName = farmName,
+                            date = date,
+                            time = time,
+                            groupSize = groupSize,
+                            totalPrice = totalAmount,
+                            paymentMethod = selectedPayment
+                        ) { success ->
+                            isBooking = false
+                            if (success) {
+                                Toast.makeText(context, "Booking Successful!", Toast.LENGTH_LONG).show()
+                                onConfirmClick() // Go back to Home
+                            } else {
+                                Toast.makeText(context, "Booking Failed. Try again.", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .height(56.dp),
+                modifier = Modifier.fillMaxWidth().padding(16.dp).height(56.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AgriGreen),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
+                enabled = !isBooking // Disable while loading
             ) {
-                Text(
-                    "Confirm Booking (Ksh $totalAmount)",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                if (isBooking) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Confirm (Ksh $totalAmount)", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null)
+                }
             }
         },
         containerColor = Color.White
@@ -103,6 +128,14 @@ fun BookingScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp)
         ) {
+
+            Text(
+                text = "Booking for: $farmName",
+                style = MaterialTheme.typography.titleMedium,
+                color = AgriGreen,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(16.dp))
 
             // 1. Tour Details Section
             Text(
