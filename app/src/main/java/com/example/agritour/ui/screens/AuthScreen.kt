@@ -53,12 +53,10 @@ fun AuthScreen(
         containerColor = Color.White,
         topBar = {
             TopAppBar(
-                title = { Text("Sign Up / Log In", fontSize = MaterialTheme.typography.titleMedium.fontSize) },
-                navigationIcon = {
-                    IconButton(onClick = { /* Optional: Handle Close/Back */ }) {
-                        Icon(Icons.Default.Close, contentDescription = "Close")
-                    }
-                },
+                title = { Text("Sign Up / Log In",
+                fontSize = MaterialTheme.typography.titleMedium.fontSize,
+                color = TextGrey
+                ) },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
@@ -71,7 +69,11 @@ fun AuthScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 1. Greeting
-            Text("Welcome Back!", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Text("Welcome Back!",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = TextGrey
+            )
             Text("Login to access your personalized experience.", color = TextGrey, style = MaterialTheme.typography.bodyMedium)
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -186,7 +188,10 @@ fun AuthScreen(
                         onCheckedChange = { isFarmer = it },
                         colors = CheckboxDefaults.colors(checkedColor = AgriGreen)
                     )
-                    Text("Register as a Farmer / Host")
+                    Text(
+                        "Register as a Farmer / Host",
+                        color = Color.Black
+                    )
                 }
             } else {
                 // Forgot Password (Login only)

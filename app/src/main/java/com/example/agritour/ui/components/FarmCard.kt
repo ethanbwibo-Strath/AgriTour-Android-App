@@ -22,9 +22,9 @@ import androidx.compose.ui.layout.ContentScale
 fun FarmCard(
     farmName: String,
     location: String,
-    price: String, // We'll convert Int to String in the screen
+    price: String,
     rating: Double,
-    imageUrl: String, // <--- NEW PARAMETER
+    imageUrl: String,
     onClick: () -> Unit
 ) {
     Card(
@@ -32,7 +32,7 @@ fun FarmCard(
         modifier = Modifier
             .width(280.dp)
             .padding(end = 16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
@@ -51,7 +51,6 @@ fun FarmCard(
 
             // 2. Text Content (Same as before)
             Column(modifier = Modifier.padding(12.dp)) {
-                // ... (Keep the rest of your text code exactly the same) ...
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -60,7 +59,8 @@ fun FarmCard(
                     Text(
                         text = farmName,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -72,7 +72,8 @@ fun FarmCard(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = rating.toString(),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
                         )
                     }
                 }
@@ -82,7 +83,7 @@ fun FarmCard(
                 Text(
                     text = location,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = Color.Gray
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
