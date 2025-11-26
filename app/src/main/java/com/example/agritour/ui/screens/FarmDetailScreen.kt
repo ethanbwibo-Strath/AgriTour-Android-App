@@ -33,13 +33,30 @@ import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.agritour.ui.viewmodel.HomeViewModel
+import coil.compose.AsyncImage
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FarmDetailScreen(
+    farmId: String,
     onBackClick: () -> Unit,
-    onBookClick: () -> Unit
+    onBookClick: () -> Unit,
+    viewModel: HomeViewModel = viewModel()
 ) {
+    val farms by viewModel.farms.collectAsState()
+    val farm = farms.find { it.id == farmId }
+
+    if (farm == null) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator(color = com.example.agritour.ui.theme.AgriGreen)
+        }
+        return // Stop here until data arrives
+    }
+
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -48,13 +65,7 @@ fun FarmDetailScreen(
         // 1. Top Bar (Matching Wireframe)
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        "Green Valley Farm",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
+                title = { Text(farm.name, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
@@ -93,7 +104,7 @@ fun FarmDetailScreen(
                 ) {
                     Column {
                         Text("Price per person", style = MaterialTheme.typography.labelMedium, color = TextGrey)
-                        Text("Ksh 500", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = AgriGreen)
+                        Text("Ksh ${farm.price}", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = AgriGreen)
                     }
                     Button(
                         onClick = onBookClick,
@@ -121,43 +132,39 @@ fun FarmDetailScreen(
                     .fillMaxWidth()
                     .height(220.dp)
                     .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp))
-                    .background(Color.LightGray) // Placeholder for Image
+                    .background(Color.LightGray)
             ) {
-                // Gradient for text readability
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.4f)),
-                                startY = 100f
-                            )
-                        )
+                // REAL IMAGE
+                AsyncImage(
+                    model = farm.imageUrl,
+                    contentDescription = farm.name,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
 
-                // Text Overlay
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "Organic Family Farm",
+                        text = "${farm.type} Farm", // e.g., "Coffee Farm"
                         style = MaterialTheme.typography.labelMedium,
                         color = Color.White.copy(alpha = 0.9f)
                     )
+
+                    // --- ADD THIS SPACER ---
+                    Spacer(modifier = Modifier.height(2.dp))
+                    // -----------------------
+
                     Text(
-                        text = "Green Valley Farm",
+                        text = farm.name,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = Color.White
                     )
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        repeat(4) {
-                            Icon(Icons.Default.Star, null, tint = Color(0xFFFFB300), modifier = Modifier.size(16.dp))
-                        }
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("4.8", color = Color.White, fontWeight = FontWeight.Bold)
+                        Text(farm.rating.toString(), color = Color.White, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -165,7 +172,7 @@ fun FarmDetailScreen(
             // 4. About Farm Card
             ContentCard(title = "About Farm") {
                 Text(
-                    text = "Green Valley Farm is a third-generation family-owned organic farm dedicated to sustainable agriculture. We specialize in cultivating a variety of seasonal vegetables, herbs, and free-range poultry. Our commitment to ecological balance ensures fresh, nutritious produce and a rich learning environment for our visitors.",
+                    text = farm.description,
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextGrey,
                     lineHeight = 22.sp
@@ -175,11 +182,9 @@ fun FarmDetailScreen(
             // 5. "What you will learn" Card
             ContentCard(title = "What you will learn") {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    LearnItem("Understand organic farming principles and practices.")
-                    LearnItem("Learn about crop rotation and soil health management.")
-                    LearnItem("Participate in harvesting seasonal vegetables and herbs.")
-                    LearnItem("Discover the life cycle and care of free-range chickens.")
-                    LearnItem("Explore sustainable water management techniques.")
+                    LearnItem("Understand ${farm.type} farming principles.")
+                    LearnItem("Learn about crop rotation and soil health.")
+                    LearnItem("Participate in harvesting activities.")
                 }
             }
 

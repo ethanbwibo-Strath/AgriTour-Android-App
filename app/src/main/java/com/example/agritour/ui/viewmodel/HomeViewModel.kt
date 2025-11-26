@@ -31,4 +31,8 @@ class HomeViewModel : ViewModel() {
     fun seedDatabase() {
         repository.addDummyData()
     }
+
+    fun getFarmById(farmId: String): Farm? {
+        return _farms.value.find { it.id == farmId }
+    }
 }

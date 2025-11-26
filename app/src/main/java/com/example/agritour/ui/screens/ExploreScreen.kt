@@ -33,7 +33,7 @@ import androidx.compose.foundation.lazy.items
 @Composable
 fun ExploreScreen(
     onHomeClick: () -> Unit,
-    onFarmClick: () -> Unit,
+    onFarmClick: (String) -> Unit,
     onLearnClick: () -> Unit,
     onProfileClick: () -> Unit,
     viewModel: HomeViewModel = viewModel()
@@ -126,7 +126,7 @@ fun ExploreScreen(
                         location = farm.location,
                         rating = farm.rating,
                         imageUrl = farm.imageUrl, // Pass the real image
-                        onBookClick = onFarmClick
+                        onBookClick = { onFarmClick(farm.id) }
                     )
                 }
 

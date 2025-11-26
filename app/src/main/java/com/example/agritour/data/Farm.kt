@@ -9,5 +9,6 @@ data class Farm(
     val imageUrl: String = "", // We will store the URL string here
     val price: Int = 0,
     val rating: Double = 0.0,
-    val type: String = "Mixed" // e.g., "Dairy", "Coffee", "Vegetables"
+    val type: String = "Mixed", // e.g., "Dairy", "Coffee", "Vegetables"
+    val description: String = "No description available."
 )

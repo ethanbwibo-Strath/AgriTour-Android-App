@@ -36,7 +36,7 @@ import com.example.agritour.ui.viewmodel.HomeViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onFarmClick: () -> Unit,
+    onFarmClick: (String) -> Unit,
     onExploreClick: () -> Unit,
     onLearnClick: () -> Unit = {},
     onProfileClick: () -> Unit = {},
@@ -194,7 +194,7 @@ fun HomeScreen(
                         price = "Ksh ${farm.price}",
                         rating = farm.rating,
                         imageUrl = farm.imageUrl, // Pass the URL from Firestore
-                        onClick = onFarmClick
+                        onClick = { onFarmClick(farm.id) }
                     )
                 }
             }

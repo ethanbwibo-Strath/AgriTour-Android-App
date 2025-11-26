@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 
 import com.example.agritour.ui.screens.BookingScreen
 import com.example.agritour.ui.screens.ExploreScreen
@@ -28,7 +30,8 @@ fun FarmAppNavigation() {
         // 1. Home Screen
         composable(route = AppScreens.HomeScreen.name) {
             HomeScreen(
-                onFarmClick = { navController.navigate(AppScreens.FarmDetailScreen.name) },
+                onFarmClick = { farmId ->
+                    navController.navigate("${AppScreens.FarmDetailScreen.name}/$farmId") },
                 onExploreClick = {
                     navController.navigate(AppScreens.ExploreScreen.name) {
                         launchSingleTop = true
@@ -59,7 +62,8 @@ fun FarmAppNavigation() {
                         popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
                     }
                 },
-                onFarmClick = { navController.navigate(AppScreens.FarmDetailScreen.name) },
+                onFarmClick = { farmId ->
+                    navController.navigate("${AppScreens.FarmDetailScreen.name}/$farmId") },
                 onLearnClick = {
                     navController.navigate(AppScreens.LearningHubScreen.name) {
                         launchSingleTop = true
@@ -76,8 +80,15 @@ fun FarmAppNavigation() {
         }
 
         // 3. Farm Detail Screen
-        composable(route = AppScreens.FarmDetailScreen.name) {
+        composable(
+            route = "${AppScreens.FarmDetailScreen.name}/{farmId}", // Define the placeholder
+            arguments = listOf(navArgument("farmId") { type = NavType.StringType }) // Define the type
+        ) { backStackEntry ->
+            // Extract the ID from the URL
+            val farmId = backStackEntry.arguments?.getString("farmId") ?: ""
+
             FarmDetailScreen(
+                farmId = farmId, // Pass it to the screen
                 onBackClick = { navController.popBackStack() },
                 onBookClick = { navController.navigate(AppScreens.BookingScreen.name) }
             )
