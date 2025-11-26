@@ -48,6 +48,7 @@ fun ProfileScreen(
     onLearnClick: () -> Unit,
     onMyBookingsClick: () -> Unit,
     onMyListingsClick: () -> Unit,
+    onRevenueClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
     onLogoutClick: () -> Unit = {}
 ) {
@@ -67,28 +68,37 @@ fun ProfileScreen(
                     label = { Text("Home") },
                     selected = false,
                     onClick = onHomeClick,
-                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
                     selected = false,
                     onClick = onExploreClick,
-                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
                     selected = false,
                     onClick = onLearnClick,
-                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = true,
                     onClick = { /* Already here */ },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AgriGreen,
+                        selectedTextColor = AgriGreen,
+                        indicatorColor = Color.White)
                 )
             }
         }
@@ -156,13 +166,26 @@ fun ProfileScreen(
                     if (isFarmer) {
                         // Farmer Menu
                         ProfileMenuItem(
+                            icon = Icons.Outlined.DateRange,
+                            title = "My Bookings",
+                            onClick = onMyBookingsClick
+                        )
+                        Divider(color = AgriBackground)
+
+                        ProfileMenuItem(
                             icon = Icons.Outlined.List,
                             title = "My Farm Listings",
                             onClick = onMyListingsClick
                         )
                         Divider(color = AgriBackground)
-                        ProfileMenuItem(icon = Icons.Outlined.BarChart, title = "Revenue Analytics", onClick = {})
+
+                        ProfileMenuItem(
+                            icon = Icons.Outlined.BarChart,
+                            title = "Revenue Analytics",
+                            onClick = onRevenueClick
+                        )
                         Divider(color = AgriBackground)
+
                         ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Message, title = "Inquiries & Chats", onClick = {})
                     } else {
                         // Visitor Menu

@@ -88,6 +88,7 @@ fun BookingScreen(
                         // 4. Save to Firestore
                         viewModel.createBooking(
                             farmId = farmId,
+                            farmOwnerId = farm?.ownerId ?: "",
                             farmName = farmName,
                             date = date,
                             time = time,

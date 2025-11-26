@@ -110,30 +110,36 @@ fun HomeScreen(
                     colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = AgriGreen,
                             selectedTextColor = AgriGreen,
-                            indicatorColor = Color.White,
-                            unselectedIconColor = TextBlack,
-                            unselectedTextColor = TextBlack
+                            indicatorColor = Color.White
                         )
                 )
 
-                // --- THE FIX IS HERE ---
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
                     selected = false,
-                    onClick = onExploreClick // <--- Now it triggers the navigation!
+                    onClick = onExploreClick,
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
                     selected = false,
-                    onClick = onLearnClick
+                    onClick = onLearnClick,
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
-                    onClick = onProfileClick
+                    onClick = onProfileClick,
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
             }
         }

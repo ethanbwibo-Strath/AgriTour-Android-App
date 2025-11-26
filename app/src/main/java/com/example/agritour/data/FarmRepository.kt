@@ -152,4 +152,16 @@ class FarmRepository {
             false
         }
     }
+
+    suspend fun getBookingsForOwner(ownerId: String): List<Booking> {
+        return try {
+            val snapshot = bookingsCollection
+                .whereEqualTo("farmOwnerId", ownerId)
+                .get()
+                .await()
+            snapshot.toObjects<Booking>()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

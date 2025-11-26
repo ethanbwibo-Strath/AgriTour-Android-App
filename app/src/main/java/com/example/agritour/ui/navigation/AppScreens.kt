@@ -12,5 +12,7 @@ enum class AppScreens {
     OwnerDashboardScreen,
     MyBookingsScreen,
     MyListingsScreen,
-    AddFarmScreen
+    AddFarmScreen,
+    RevenueScreen
+
 }

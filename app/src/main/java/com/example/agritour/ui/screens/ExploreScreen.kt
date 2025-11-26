@@ -68,28 +68,37 @@ fun ExploreScreen(
                     label = { Text("Home") },
                     selected = false,
                     onClick = onHomeClick,
-                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
                     selected = true,
                     onClick = { },
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AgriGreen,
+                        selectedTextColor = AgriGreen,
+                        indicatorColor = Color.White)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
                     selected = false,
                     onClick = onLearnClick,
-                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
                     onClick = onProfileClick,
-                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
             }
         }
@@ -104,7 +113,7 @@ fun ExploreScreen(
                 // TYPE CHIP
                 item {
                     DropdownFilterChip(
-                        label = "Plant Type",
+                        label = "Farm Type",
                         selectedValue = if (selectedType == "All") null else selectedType,
                         onClick = { showTypeSheet = true }
                     )
@@ -181,7 +190,7 @@ fun ExploreScreen(
 @Composable
 fun DropdownFilterChip(
     label: String,
-    selectedValue: String?, // If null, shows label. If set, shows value.
+    selectedValue: String?,
     onClick: () -> Unit
 ) {
     val isSelected = selectedValue != null

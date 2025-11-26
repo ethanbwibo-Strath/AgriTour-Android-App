@@ -11,12 +11,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Eco
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,7 +50,15 @@ fun FarmDetailScreen(
     viewModel: HomeViewModel = viewModel()
 ) {
     val farms by viewModel.farms.collectAsState()
+    val owner by viewModel.currentFarmOwner.collectAsState()
+
     val farm = farms.find { it.id == farmId }
+
+    LaunchedEffect(farm) {
+        if (farm != null && farm.ownerId.isNotEmpty()) {
+            viewModel.fetchFarmOwner(farm.ownerId)
+        }
+    }
 
     if (farm == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -60,9 +70,9 @@ fun FarmDetailScreen(
     val scrollState = rememberScrollState()
 
     Scaffold(
-        containerColor = AgriBackground, // The light grey background from your wireframe
+        containerColor = AgriBackground,
 
-        // 1. Top Bar (Matching Wireframe)
+        // 1. Top Bar
         topBar = {
             TopAppBar(
                 title = { Text(farm.name, fontWeight = FontWeight.Bold) },
@@ -191,16 +201,15 @@ fun FarmDetailScreen(
             // 6. Owner Profile Card
             ContentCard(title = "Owner Profile") {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Avatar Placeholder
+                    // Avatar (Placeholder for now, could rely on user profile image later)
                     Box(
                         modifier = Modifier
                             .size(50.dp)
                             .clip(CircleShape)
-                            .background(Color(0xFFD1F2EB)) // Light Green bg
+                            .background(Color(0xFFD1F2EB))
                     ) {
-                        // Normally an Image here. Using Icon for placeholder
                         Icon(
-                            imageVector = Icons.Default.MoreVert, // Replace with User Image
+                            imageVector = Icons.Default.Person, // Or Icons.Default.Agriculture
                             contentDescription = null,
                             tint = AgriGreen,
                             modifier = Modifier.align(Alignment.Center)
@@ -210,8 +219,18 @@ fun FarmDetailScreen(
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Column {
-                        Text("Maria Rodriguez", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        Text("Farm Owner & Educator", style = MaterialTheme.typography.bodyMedium, color = TextGrey)
+                        // DYNAMIC NAME
+                        Text(
+                            text = owner?.name ?: "Loading...", // <--- USE REAL NAME
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        // Role/Email
+                        Text(
+                            text = "Farm Owner", // You could also use owner?.email
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextGrey
+                        )
                     }
                 }
 
@@ -222,7 +241,7 @@ fun FarmDetailScreen(
                     onClick = { /* Open Chat */ },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = AgriGreen),
-                    shape = RoundedCornerShape(50) // Pill shape
+                    shape = RoundedCornerShape(50)
                 ) {
                     Icon(Icons.AutoMirrored.Outlined.Message, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
@@ -230,7 +249,6 @@ fun FarmDetailScreen(
                 }
             }
 
-            // Spacer to ensure content isn't hidden by bottom bar
             Spacer(modifier = Modifier.height(80.dp))
         }
     }

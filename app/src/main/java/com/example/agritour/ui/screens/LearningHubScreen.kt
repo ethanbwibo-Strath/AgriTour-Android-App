@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.*
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -53,13 +54,19 @@ fun LearningHubScreen(
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Home") },
                     selected = false,
-                    onClick = onHomeClick
+                    onClick = onHomeClick,
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
                     selected = false,
-                    onClick = onExploreClick // Linked!
+                    onClick = onExploreClick,
+                    colors = NavigationBarItemDefaults.colors(
+                            unselectedIconColor = TextGrey,
+                            unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
@@ -70,15 +77,18 @@ fun LearningHubScreen(
                         selectedIconColor = AgriGreen,
                         selectedTextColor = AgriGreen,
                         indicatorColor = Color.White,
-                        unselectedIconColor = TextBlack,
-                        unselectedTextColor = TextBlack
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey
                     )
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
-                    onClick = onProfileClick
+                    onClick = onProfileClick,
+                    colors = NavigationBarItemDefaults.colors(
+                        unselectedIconColor = TextGrey,
+                        unselectedTextColor = TextGrey)
                 )
             }
         }

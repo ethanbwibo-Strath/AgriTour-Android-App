@@ -18,29 +18,26 @@ class HomeViewModel : ViewModel() {
     private var allFarmsCache = listOf<Farm>()
 
     // --- STATE ---
-    // User Profile
     private val _currentUser = MutableStateFlow<UserProfile?>(null)
     val currentUser: StateFlow<UserProfile?> = _currentUser.asStateFlow()
-
-    // Farms & Filters
     private val _typeFilter = MutableStateFlow<String?>(null)
     private val _locationFilter = MutableStateFlow<String?>(null)
     private val _farms = MutableStateFlow<List<Farm>>(emptyList())
     val farms: StateFlow<List<Farm>> = _farms.asStateFlow()
-
-    // Bookings
     private val _myBookings = MutableStateFlow<List<Booking>>(emptyList())
     val myBookings: StateFlow<List<Booking>> = _myBookings.asStateFlow()
-
     private val _currentBooking = MutableStateFlow<Booking?>(null)
     val currentBooking: StateFlow<Booking?> = _currentBooking.asStateFlow()
-
     private val _myFarms = MutableStateFlow<List<Farm>>(emptyList())
     val myFarms: StateFlow<List<Farm>> = _myFarms.asStateFlow()
+    private val _incomingBookings = MutableStateFlow<List<Booking>>(emptyList())
+    val incomingBookings: StateFlow<List<Booking>> = _incomingBookings.asStateFlow()
+    private val _currentFarmOwner = MutableStateFlow<UserProfile?>(null)
+    val currentFarmOwner: StateFlow<UserProfile?> = _currentFarmOwner.asStateFlow()
 
     init {
         fetchFarms()
-        fetchCurrentUser() // Fetch user immediately on start
+        fetchCurrentUser()
     }
 
     // --- USER LOGIC ---
@@ -100,6 +97,7 @@ class HomeViewModel : ViewModel() {
     fun createBooking(
         farmId: String,
         farmName: String,
+        farmOwnerId: String,
         date: String,
         time: String,
         groupSize: Int,
@@ -107,18 +105,17 @@ class HomeViewModel : ViewModel() {
         paymentMethod: String,
         onResult: (Boolean) -> Unit
     ) {
-        // Get the REAL User ID
         val userId = FirebaseAuth.getInstance().currentUser?.uid
-
         if (userId == null) {
-            onResult(false) // Not logged in
+            onResult(false)
             return
         }
 
         viewModelScope.launch {
             val booking = Booking(
-                userId = userId, // Use real ID
+                userId = userId,
                 farmId = farmId,
+                farmOwnerId = farmOwnerId,
                 farmName = farmName,
                 date = date,
                 time = time,
@@ -168,8 +165,6 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    // ... inside HomeViewModel ...
-
     fun addNewFarm(
         name: String,
         location: String,
@@ -208,6 +203,21 @@ class HomeViewModel : ViewModel() {
             val success = repository.addFarm(newFarm)
             if (success) fetchMyFarms() // Refresh the list
             onResult(success)
+        }
+    }
+
+    fun fetchIncomingBookings() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        viewModelScope.launch {
+            _incomingBookings.value = repository.getBookingsForOwner(userId)
+        }
+    }
+
+    fun fetchFarmOwner(userId: String) {
+        viewModelScope.launch {
+            _currentFarmOwner.value = null // Clear previous owner
+            val owner = repository.getUserProfile(userId)
+            _currentFarmOwner.value = owner
         }
     }
 

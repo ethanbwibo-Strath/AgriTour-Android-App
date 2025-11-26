@@ -7,13 +7,14 @@ import java.util.Date
 data class Booking(
     @DocumentId val id: String = "",
     val farmId: String = "",
-    val farmName: String = "", // Store name for easier display later
-    val userId: String = "test_user_1", // Hardcoded until we add Login
+    val farmName: String = "",
+    val userId: String = "",
+    val farmOwnerId: String = "",
     val date: String = "",
     val time: String = "",
     val groupSize: Int = 1,
     val totalPrice: Int = 0,
-    val status: String = "Pending", // Pending, Confirmed, Cancelled
+    val status: String = "Pending",
     val paymentMethod: String = "",
     @ServerTimestamp val createdAt: Date? = null
 )

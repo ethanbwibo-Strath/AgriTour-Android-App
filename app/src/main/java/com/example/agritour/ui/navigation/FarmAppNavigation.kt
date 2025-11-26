@@ -23,6 +23,7 @@ import com.example.agritour.ui.screens.LearningHubScreen
 import com.example.agritour.ui.screens.MyBookingsScreen
 import com.example.agritour.ui.screens.MyListingsScreen
 import com.example.agritour.ui.screens.ProfileScreen
+import com.example.agritour.ui.screens.RevenueScreen
 import com.example.agritour.ui.screens.SplashScreen
 
 @Composable
@@ -168,7 +169,7 @@ fun FarmAppNavigation() {
             )
         }
 
-        // 6. Profile Screen (NEW)
+        // 6. Profile Screen
         composable(route = AppScreens.ProfileScreen.name) {
             ProfileScreen(
                 onHomeClick = {
@@ -193,6 +194,9 @@ fun FarmAppNavigation() {
                 },
                 onMyListingsClick = {
                     navController.navigate(AppScreens.MyListingsScreen.name)
+                },
+                onRevenueClick = {
+                    navController.navigate(AppScreens.RevenueScreen.name)
                 },
                 onLogoutClick = {
                     navController.navigate(AppScreens.AuthScreen.name) {
@@ -257,6 +261,13 @@ fun FarmAppNavigation() {
         // 10. Add Farm Screen (Placeholder for now)
         composable(route = AppScreens.AddFarmScreen.name) {
             AddFarmScreen(
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // 11. Revenue Screen (New)
+        composable(route = AppScreens.RevenueScreen.name) {
+            RevenueScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }
