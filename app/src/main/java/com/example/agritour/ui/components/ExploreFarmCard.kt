@@ -28,7 +28,8 @@ fun ExploreFarmCard(
     farmType: String,
     location: String,
     rating: Double,
-    imageUrl: String, // <--- NEW PARAMETER
+    imageUrl: String,
+    actionText: String = "Book Visit",
     onBookClick: () -> Unit
 ) {
     Card(
@@ -118,7 +119,7 @@ fun ExploreFarmCard(
                 ) {
                     Icon(Icons.Outlined.CalendarToday, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Book Visit", fontWeight = FontWeight.Bold)
+                    Text(actionText , fontWeight = FontWeight.Bold)
                 }
             }
         }

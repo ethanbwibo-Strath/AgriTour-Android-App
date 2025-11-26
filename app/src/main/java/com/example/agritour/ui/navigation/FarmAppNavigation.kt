@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.agritour.ui.screens.AddFarmScreen
 import com.example.agritour.ui.screens.AuthScreen
 import com.example.agritour.ui.screens.BookingDetailScreen
 
@@ -20,6 +21,7 @@ import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
 import com.example.agritour.ui.screens.LearningHubScreen
 import com.example.agritour.ui.screens.MyBookingsScreen
+import com.example.agritour.ui.screens.MyListingsScreen
 import com.example.agritour.ui.screens.ProfileScreen
 import com.example.agritour.ui.screens.SplashScreen
 
@@ -189,6 +191,9 @@ fun FarmAppNavigation() {
                 onMyBookingsClick = {
                     navController.navigate(AppScreens.MyBookingsScreen.name)
                 },
+                onMyListingsClick = {
+                    navController.navigate(AppScreens.MyListingsScreen.name)
+                },
                 onLogoutClick = {
                     navController.navigate(AppScreens.AuthScreen.name) {
                         popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
@@ -234,6 +239,24 @@ fun FarmAppNavigation() {
             val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
             BookingDetailScreen(
                 bookingId = bookingId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // 9. My Listings Screen
+        composable(route = AppScreens.MyListingsScreen.name) {
+            MyListingsScreen(
+                onBackClick = { navController.popBackStack() },
+                onAddFarmClick = { navController.navigate(AppScreens.AddFarmScreen.name) },
+                onFarmClick = { farmId ->
+                    navController.navigate("${AppScreens.FarmDetailScreen.name}/$farmId")
+                }
+            )
+        }
+
+        // 10. Add Farm Screen (Placeholder for now)
+        composable(route = AppScreens.AddFarmScreen.name) {
+            AddFarmScreen(
                 onBackClick = { navController.popBackStack() }
             )
         }

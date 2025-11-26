@@ -35,6 +35,9 @@ class HomeViewModel : ViewModel() {
     private val _currentBooking = MutableStateFlow<Booking?>(null)
     val currentBooking: StateFlow<Booking?> = _currentBooking.asStateFlow()
 
+    private val _myFarms = MutableStateFlow<List<Farm>>(emptyList())
+    val myFarms: StateFlow<List<Farm>> = _myFarms.asStateFlow()
+
     init {
         fetchFarms()
         fetchCurrentUser() // Fetch user immediately on start
@@ -157,4 +160,55 @@ class HomeViewModel : ViewModel() {
             _currentBooking.value = booking
         }
     }
+
+    fun fetchMyFarms() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        viewModelScope.launch {
+            _myFarms.value = repository.getFarmsByOwner(userId)
+        }
+    }
+
+    // ... inside HomeViewModel ...
+
+    fun addNewFarm(
+        name: String,
+        location: String,
+        price: Int,
+        type: String,
+        description: String,
+        imageUri: android.net.Uri?,
+        onResult: (Boolean) -> Unit
+    ) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
+        viewModelScope.launch {
+            // 1. Upload Image (if exists)
+            var imageUrl = ""
+            if (imageUri != null) {
+                imageUrl = repository.uploadImage(imageUri) ?: ""
+                if (imageUrl.isEmpty()) {
+                    onResult(false) // Upload failed
+                    return@launch
+                }
+            }
+
+            // 2. Create Farm Object
+            val newFarm = Farm(
+                ownerId = userId,
+                name = name,
+                location = location,
+                price = price,
+                type = type,
+                description = description,
+                imageUrl = imageUrl,
+                rating = 0.0
+            )
+
+            // 3. Save to Database
+            val success = repository.addFarm(newFarm)
+            if (success) fetchMyFarms() // Refresh the list
+            onResult(success)
+        }
+    }
+
 }

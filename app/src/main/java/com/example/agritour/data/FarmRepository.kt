@@ -9,6 +9,7 @@ import kotlinx.coroutines.tasks.await
 class FarmRepository {
     private val db = FirebaseFirestore.getInstance()
     private val farmsCollection = db.collection("farms")
+    private val storage = com.google.firebase.storage.FirebaseStorage.getInstance()
 
     // 1. Fetch all farms
     suspend fun getFarms(): List<Farm> {
@@ -114,6 +115,41 @@ class FarmRepository {
         } catch (e: Exception) {
             Log.e("FarmRepo", "Error fetching user profile", e)
             null
+        }
+    }
+
+    suspend fun getFarmsByOwner(ownerId: String): List<Farm> {
+        return try {
+            val snapshot = farmsCollection
+                .whereEqualTo("ownerId", ownerId) // We need to make sure we save this field later!
+                .get()
+                .await()
+            snapshot.toObjects<Farm>()
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error fetching my farms", e)
+            emptyList()
+        }
+    }
+
+    suspend fun uploadImage(imageUri: android.net.Uri): String? {
+        return try {
+            val filename = "farms/${System.currentTimeMillis()}.jpg"
+            val ref = storage.reference.child(filename)
+            val uploadTask = ref.putFile(imageUri).await() // Upload
+            ref.downloadUrl.await().toString() // Get the URL
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Image upload failed", e)
+            null
+        }
+    }
+
+    suspend fun addFarm(farm: Farm): Boolean {
+        return try {
+            farmsCollection.add(farm).await()
+            true
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error adding farm", e)
+            false
         }
     }
 }

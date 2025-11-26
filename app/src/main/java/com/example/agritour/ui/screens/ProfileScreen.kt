@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.agritour.ui.navigation.AppScreens
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
@@ -46,6 +47,7 @@ fun ProfileScreen(
     onExploreClick: () -> Unit,
     onLearnClick: () -> Unit,
     onMyBookingsClick: () -> Unit,
+    onMyListingsClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
     onLogoutClick: () -> Unit = {}
 ) {
@@ -153,7 +155,11 @@ fun ProfileScreen(
                 MenuCard {
                     if (isFarmer) {
                         // Farmer Menu
-                        ProfileMenuItem(icon = Icons.Outlined.List, title = "My Farm Listings", onClick = {})
+                        ProfileMenuItem(
+                            icon = Icons.Outlined.List,
+                            title = "My Farm Listings",
+                            onClick = onMyListingsClick
+                        )
                         Divider(color = AgriBackground)
                         ProfileMenuItem(icon = Icons.Outlined.BarChart, title = "Revenue Analytics", onClick = {})
                         Divider(color = AgriBackground)
