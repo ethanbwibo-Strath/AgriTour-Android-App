@@ -22,6 +22,11 @@ class HomeViewModel : ViewModel() {
     // The final filtered list
     private val _farms = MutableStateFlow<List<Farm>>(emptyList())
     val farms: StateFlow<List<Farm>> = _farms.asStateFlow()
+    private val _myBookings = MutableStateFlow<List<Booking>>(emptyList())
+    val myBookings: StateFlow<List<Booking>> = _myBookings.asStateFlow()
+
+    private val _currentBooking = MutableStateFlow<Booking?>(null)
+    val currentBooking: StateFlow<Booking?> = _currentBooking.asStateFlow()
 
     init {
         fetchFarms()
@@ -87,6 +92,36 @@ class HomeViewModel : ViewModel() {
             )
             val success = repository.saveBooking(booking)
             onResult(success)
+        }
+    }
+
+    fun fetchUserBookings() {
+        viewModelScope.launch {
+            // "test_user_1" matches the hardcoded ID we used in BookingScreen
+            _myBookings.value = repository.getBookingsForUser("test_user_1")
+        }
+    }
+
+    fun cancelBooking(bookingId: String) {
+        viewModelScope.launch {
+            val success = repository.cancelBooking(bookingId)
+            if (success) {
+                // Refresh the list so the UI updates immediately
+                fetchUserBookings()
+            }
+        }
+    }
+
+    fun getBookingById(bookingId: String): Booking? {
+        return _myBookings.value.find { it.id == bookingId }
+    }
+
+    fun loadSingleBooking(bookingId: String) {
+        viewModelScope.launch {
+            // Clear previous data first so we don't show old info
+            _currentBooking.value = null
+            val booking = repository.getBooking(bookingId)
+            _currentBooking.value = booking
         }
     }
 }

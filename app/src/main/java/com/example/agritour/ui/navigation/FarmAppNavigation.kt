@@ -11,12 +11,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.agritour.ui.screens.BookingDetailScreen
 
 import com.example.agritour.ui.screens.BookingScreen
 import com.example.agritour.ui.screens.ExploreScreen
 import com.example.agritour.ui.screens.FarmDetailScreen
 import com.example.agritour.ui.screens.HomeScreen
 import com.example.agritour.ui.screens.LearningHubScreen
+import com.example.agritour.ui.screens.MyBookingsScreen
 import com.example.agritour.ui.screens.ProfileScreen
 
 @Composable
@@ -154,7 +156,51 @@ fun FarmAppNavigation() {
                         launchSingleTop = true
                         restoreState = true
                     }
+                },
+                onMyBookingsClick = {
+                    navController.navigate(AppScreens.MyBookingsScreen.name)
                 }
+            )
+        }
+
+        // 7. My Bookings Screen (UPDATED)
+        composable(route = AppScreens.MyBookingsScreen.name) {
+            MyBookingsScreen(
+                onHomeClick = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
+                },
+                onExploreClick = {
+                    navController.navigate(AppScreens.ExploreScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onLearnClick = {
+                    navController.navigate(AppScreens.LearningHubScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onProfileClick = {
+                    navController.popBackStack()
+                },
+                onBookingClick = { bookingId ->
+                    navController.navigate("BookingDetailScreen/$bookingId") // Navigate to detail
+                }
+            )
+        }
+
+        // 8. Booking Detail Screen (NEW)
+        composable(
+            route = "BookingDetailScreen/{bookingId}",
+            arguments = listOf(navArgument("bookingId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val bookingId = backStackEntry.arguments?.getString("bookingId") ?: ""
+            BookingDetailScreen(
+                bookingId = bookingId,
+                onBackClick = { navController.popBackStack() }
             )
         }
     }

@@ -29,10 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.graphics.graphicsLayer
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
@@ -42,9 +42,10 @@ import com.example.agritour.ui.theme.TextGrey
 fun ProfileScreen(
     onHomeClick: () -> Unit,
     onExploreClick: () -> Unit,
-    onLearnClick: () -> Unit
+    onLearnClick: () -> Unit,
+    onMyBookingsClick: () -> Unit // <--- This parameter is crucial
 ) {
-    // --- STATE FOR ROLE SWITCHING (For Testing Purposes) ---
+    // --- STATE FOR ROLE SWITCHING ---
     var isFarmer by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -55,32 +56,29 @@ fun ProfileScreen(
                     icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Home") },
                     selected = false,
-                    onClick = onHomeClick
+                    onClick = onHomeClick,
+                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
                     label = { Text("Explore") },
                     selected = false,
-                    onClick = onExploreClick
+                    onClick = onExploreClick,
+                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Book, contentDescription = null) },
                     label = { Text("Learn") },
                     selected = false,
-                    onClick = onLearnClick
+                    onClick = onLearnClick,
+                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = true,
                     onClick = { /* Already here */ },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = AgriGreen,
-                        selectedTextColor = AgriGreen,
-                        indicatorColor = Color.White,
-                        unselectedIconColor = TextBlack,
-                        unselectedTextColor = TextBlack
-                    )
+                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
                 )
             }
         }
@@ -91,11 +89,11 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // 0. DEV TOGGLE (Remove this in production)
+            // 0. DEV TOGGLE
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFFFF3E0)) // Light Orange
+                    .background(Color(0xFFFFF3E0))
                     .padding(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
@@ -109,7 +107,7 @@ fun ProfileScreen(
                 Text("Farmer View", style = MaterialTheme.typography.labelSmall)
             }
 
-            // 1. Header Section (Dynamic)
+            // 1. Header Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -126,7 +124,6 @@ fun ProfileScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            // Change Icon based on role
                             imageVector = if (isFarmer) Icons.Default.Agriculture else Icons.Default.Person,
                             contentDescription = null,
                             tint = AgriGreen,
@@ -136,7 +133,6 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Dynamic Name
                     Text(
                         text = if (isFarmer) "Green Valley Estate" else "Alex Kamau",
                         style = MaterialTheme.typography.titleLarge,
@@ -146,69 +142,86 @@ fun ProfileScreen(
                     Text(
                         text = if (isFarmer) "Manage your farm listings" else "alex.kamau@student.sku.ac.ke",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = TextBlack
+                        color = TextGrey
                     )
                 }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 2. Menu Options (Conditional)
+            // 2. Menu Options
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
 
-                // --- SECTION 1: MAIN ACTIONS ---
                 Text(
                     text = if (isFarmer) "Farm Management" else "My Account",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextBlack,
                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
                 )
 
                 MenuCard {
                     if (isFarmer) {
-                        // === FARMER MENU ITEMS ===
-                        ProfileMenuItem(icon = Icons.Outlined.List, title = "My Farm Listings")
+                        // All these items now have onClick = {}
+                        ProfileMenuItem(icon = Icons.Outlined.List, title = "My Farm Listings", onClick = {})
                         Divider(color = AgriBackground)
-                        ProfileMenuItem(icon = Icons.Outlined.BarChart, title = "Revenue Analytics")
+                        ProfileMenuItem(icon = Icons.Outlined.BarChart, title = "Revenue Analytics", onClick = {})
                         Divider(color = AgriBackground)
-                        ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Message, title = "Inquiries & Chats")
+                        ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Message, title = "Inquiries & Chats", onClick = {})
                     } else {
-                        // === VISITOR MENU ITEMS ===
-                        ProfileMenuItem(icon = Icons.Outlined.DateRange, title = "My Bookings")
+                        // VISITOR MENU
+                        // This one uses the real navigation callback!
+                        ProfileMenuItem(
+                            icon = Icons.Outlined.DateRange,
+                            title = "My Bookings",
+                            onClick = onMyBookingsClick
+                        )
                         Divider(color = AgriBackground)
-                        ProfileMenuItem(icon = Icons.Outlined.FavoriteBorder, title = "Saved Farms")
+
+                        ProfileMenuItem(
+                            icon = Icons.Outlined.FavoriteBorder,
+                            title = "Saved Farms",
+                            onClick = {}
+                        )
                         Divider(color = AgriBackground)
-                        // Added Chat here as requested
-                        ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Message, title = "Chats & Messages")
+
+                        ProfileMenuItem(
+                            icon = Icons.AutoMirrored.Outlined.Message,
+                            title = "Chats & Messages",
+                            onClick = {}
+                        )
                         Divider(color = AgriBackground)
-                        ProfileMenuItem(icon = Icons.Outlined.CreditCard, title = "Payment Methods")
+
+                        ProfileMenuItem(
+                            icon = Icons.Outlined.CreditCard,
+                            title = "Payment Methods",
+                            onClick = {}
+                        )
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // --- SECTION 2: GENERAL ---
+                // 3. General Section
                 Text(
                     text = "General",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = TextBlack,
                     modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
                 )
 
                 MenuCard {
-                    ProfileMenuItem(icon = Icons.Outlined.Settings, title = "Settings")
+                    // These triggered the error in your screenshot -> Fixed now
+                    ProfileMenuItem(icon = Icons.Outlined.Settings, title = "Settings", onClick = {})
                     Divider(color = AgriBackground)
-                    ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Help, title = "Help & Support")
+                    ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Help, title = "Help & Support", onClick = {})
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // Logout Button
                 Button(
-                    onClick = { /* Handle Logout */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE)), // Light Red
+                    onClick = { },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE)),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -219,15 +232,14 @@ fun ProfileScreen(
                     Text("Log Out", color = Color.Red, fontWeight = FontWeight.Bold)
                 }
 
-                // Extra space for bottom bar
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
 }
 
-// --- Helper Components ---
-// Added helper for Modifier.scale()
+// --- HELPER COMPONENTS ---
+
 fun Modifier.scale(scale: Float): Modifier = this.then(
     Modifier.graphicsLayer(scaleX = scale, scaleY = scale)
 )
@@ -243,12 +255,17 @@ fun MenuCard(content: @Composable ColumnScope.() -> Unit) {
     }
 }
 
+// The Updated Helper that was causing the mismatch
 @Composable
-fun ProfileMenuItem(icon: ImageVector, title: String) {
+fun ProfileMenuItem(
+    icon: ImageVector,
+    title: String,
+    onClick: () -> Unit // <--- This was the requirement
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable { onClick() } // <--- Now it handles the click
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

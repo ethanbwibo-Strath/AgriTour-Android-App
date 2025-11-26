@@ -2,6 +2,7 @@ package com.example.agritour.data
 
 import android.util.Log
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.tasks.await
 
@@ -65,6 +66,42 @@ class FarmRepository {
         } catch (e: Exception) {
             Log.e("FarmRepo", "Error saving booking", e)
             false // Failure
+        }
+    }
+
+    suspend fun getBookingsForUser(userId: String): List<Booking> {
+        return try {
+            val snapshot = bookingsCollection
+                .whereEqualTo("userId", userId)
+                // .orderBy("createdAt", Query.Direction.DESCENDING) // Requires a Firestore Index (skip for now to avoid crashes)
+                .get()
+                .await()
+            snapshot.toObjects<Booking>()
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error fetching bookings", e)
+            emptyList()
+        }
+    }
+
+    suspend fun cancelBooking(bookingId: String): Boolean {
+        return try {
+            bookingsCollection.document(bookingId)
+                .update("status", "Cancelled")
+                .await()
+            true
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error cancelling booking", e)
+            false
+        }
+    }
+
+    suspend fun getBooking(bookingId: String): Booking? {
+        return try {
+            val document = bookingsCollection.document(bookingId).get().await()
+            document.toObject<Booking>()
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error getting booking", e)
+            null
         }
     }
 }
