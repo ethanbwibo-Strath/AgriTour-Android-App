@@ -33,20 +33,28 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
+import com.example.agritour.ui.viewmodel.HomeViewModel
 
 @Composable
 fun ProfileScreen(
     onHomeClick: () -> Unit,
     onExploreClick: () -> Unit,
     onLearnClick: () -> Unit,
-    onMyBookingsClick: () -> Unit // <--- This parameter is crucial
+    onMyBookingsClick: () -> Unit,
+    viewModel: HomeViewModel = viewModel(),
+    onLogoutClick: () -> Unit = {}
 ) {
-    // --- STATE FOR ROLE SWITCHING ---
-    var isFarmer by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        viewModel.fetchCurrentUser()
+    }
+
+    val userProfile by viewModel.currentUser.collectAsState()
+    val isFarmer = userProfile?.role == "farmer"
 
     Scaffold(
         containerColor = AgriBackground,
@@ -89,24 +97,6 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // 0. DEV TOGGLE
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFFFF3E0))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text("Visitor View", style = MaterialTheme.typography.labelSmall)
-                Switch(
-                    checked = isFarmer,
-                    onCheckedChange = { isFarmer = it },
-                    modifier = Modifier.scale(0.8f).padding(horizontal = 8.dp)
-                )
-                Text("Farmer View", style = MaterialTheme.typography.labelSmall)
-            }
-
             // 1. Header Section
             Box(
                 modifier = Modifier
@@ -133,14 +123,15 @@ fun ProfileScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // --- DYNAMIC DATA FROM FIRESTORE ---
                     Text(
-                        text = if (isFarmer) "Green Valley Estate" else "Alex Kamau",
+                        text = userProfile?.name ?: "Loading Name...",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = TextBlack
                     )
                     Text(
-                        text = if (isFarmer) "Manage your farm listings" else "alex.kamau@student.sku.ac.ke",
+                        text = userProfile?.email ?: "Loading Email...",
                         style = MaterialTheme.typography.bodyMedium,
                         color = TextGrey
                     )
@@ -161,15 +152,14 @@ fun ProfileScreen(
 
                 MenuCard {
                     if (isFarmer) {
-                        // All these items now have onClick = {}
+                        // Farmer Menu
                         ProfileMenuItem(icon = Icons.Outlined.List, title = "My Farm Listings", onClick = {})
                         Divider(color = AgriBackground)
                         ProfileMenuItem(icon = Icons.Outlined.BarChart, title = "Revenue Analytics", onClick = {})
                         Divider(color = AgriBackground)
                         ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Message, title = "Inquiries & Chats", onClick = {})
                     } else {
-                        // VISITOR MENU
-                        // This one uses the real navigation callback!
+                        // Visitor Menu
                         ProfileMenuItem(
                             icon = Icons.Outlined.DateRange,
                             title = "My Bookings",
@@ -210,7 +200,6 @@ fun ProfileScreen(
                 )
 
                 MenuCard {
-                    // These triggered the error in your screenshot -> Fixed now
                     ProfileMenuItem(icon = Icons.Outlined.Settings, title = "Settings", onClick = {})
                     Divider(color = AgriBackground)
                     ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Help, title = "Help & Support", onClick = {})
@@ -218,9 +207,12 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Logout Button
+                // 4. Logout Button (Now Functional)
                 Button(
-                    onClick = { },
+                    onClick = {
+                        viewModel.signOut() // 1. Clear Data
+                        onLogoutClick()     // 2. Navigate to Auth
+                    },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE)),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -255,17 +247,16 @@ fun MenuCard(content: @Composable ColumnScope.() -> Unit) {
     }
 }
 
-// The Updated Helper that was causing the mismatch
 @Composable
 fun ProfileMenuItem(
     icon: ImageVector,
     title: String,
-    onClick: () -> Unit // <--- This was the requirement
+    onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() } // <--- Now it handles the click
+            .clickable { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

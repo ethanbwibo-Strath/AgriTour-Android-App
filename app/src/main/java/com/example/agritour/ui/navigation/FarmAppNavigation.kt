@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.agritour.ui.screens.AuthScreen
 import com.example.agritour.ui.screens.BookingDetailScreen
 
 import com.example.agritour.ui.screens.BookingScreen
@@ -20,6 +21,7 @@ import com.example.agritour.ui.screens.HomeScreen
 import com.example.agritour.ui.screens.LearningHubScreen
 import com.example.agritour.ui.screens.MyBookingsScreen
 import com.example.agritour.ui.screens.ProfileScreen
+import com.example.agritour.ui.screens.SplashScreen
 
 @Composable
 fun FarmAppNavigation() {
@@ -27,8 +29,35 @@ fun FarmAppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = AppScreens.HomeScreen.name
+        startDestination = AppScreens.SplashScreen.name
     ) {
+        // 0. Splash Screen
+        composable(route = AppScreens.SplashScreen.name) {
+            SplashScreen(
+                onNavigateToHome = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.SplashScreen.name) { inclusive = true }
+                    }
+                },
+                onNavigateToAuth = {
+                    navController.navigate(AppScreens.AuthScreen.name) {
+                        popUpTo(AppScreens.SplashScreen.name) { inclusive = true }
+                    }
+                }
+            )
+        }
+
+        // 0.5. Auth Screen
+        composable(route = AppScreens.AuthScreen.name) {
+            AuthScreen(
+                onLoginSuccess = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.AuthScreen.name) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         // 1. Home Screen
         composable(route = AppScreens.HomeScreen.name) {
             HomeScreen(
@@ -159,6 +188,11 @@ fun FarmAppNavigation() {
                 },
                 onMyBookingsClick = {
                     navController.navigate(AppScreens.MyBookingsScreen.name)
+                },
+                onLogoutClick = {
+                    navController.navigate(AppScreens.AuthScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
                 }
             )
         }

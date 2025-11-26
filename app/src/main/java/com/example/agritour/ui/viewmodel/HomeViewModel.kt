@@ -5,23 +5,30 @@ import androidx.lifecycle.viewModelScope
 import com.example.agritour.data.Booking
 import com.example.agritour.data.Farm
 import com.example.agritour.data.FarmRepository
+import com.example.agritour.data.UserProfile
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
+
     private val repository = FarmRepository()
     private var allFarmsCache = listOf<Farm>()
 
-    // Tracking active filters (null means "All")
+    // --- STATE ---
+    // User Profile
+    private val _currentUser = MutableStateFlow<UserProfile?>(null)
+    val currentUser: StateFlow<UserProfile?> = _currentUser.asStateFlow()
+
+    // Farms & Filters
     private val _typeFilter = MutableStateFlow<String?>(null)
     private val _locationFilter = MutableStateFlow<String?>(null)
-
-    // The final filtered list
     private val _farms = MutableStateFlow<List<Farm>>(emptyList())
     val farms: StateFlow<List<Farm>> = _farms.asStateFlow()
+
+    // Bookings
     private val _myBookings = MutableStateFlow<List<Booking>>(emptyList())
     val myBookings: StateFlow<List<Booking>> = _myBookings.asStateFlow()
 
@@ -30,46 +37,63 @@ class HomeViewModel : ViewModel() {
 
     init {
         fetchFarms()
+        fetchCurrentUser() // Fetch user immediately on start
     }
 
-    private fun fetchFarms() {
-        viewModelScope.launch {
-            allFarmsCache = repository.getFarms()
-            applyFilters() // Initial load
+    // --- USER LOGIC ---
+    fun fetchCurrentUser() {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null) {
+            viewModelScope.launch {
+                val profile = repository.getUserProfile(firebaseUser.uid)
+                _currentUser.value = profile
+
+                // If visitor, load their bookings automatically
+                if (profile?.role == "visitor") {
+                    fetchUserBookings()
+                }
+            }
         }
     }
 
-    // Called when user selects a specific Type (e.g., "Coffee")
+    fun signOut() {
+        FirebaseAuth.getInstance().signOut()
+        _currentUser.value = null
+        _myBookings.value = emptyList() // Clear data
+    }
+
+    // --- FARM LOGIC ---
+    private fun fetchFarms() {
+        viewModelScope.launch {
+            allFarmsCache = repository.getFarms()
+            applyFilters()
+        }
+    }
+
     fun setTypeFilter(type: String?) {
         _typeFilter.value = type
         applyFilters()
     }
 
-    // Called when user selects a specific Location (e.g., "Nairobi")
     fun setLocationFilter(location: String?) {
         _locationFilter.value = location
         applyFilters()
     }
 
-    // The Master Filter Logic
     private fun applyFilters() {
         val currentType = _typeFilter.value
         val currentLocation = _locationFilter.value
 
         _farms.value = allFarmsCache.filter { farm ->
             val matchType = currentType == null || farm.type.equals(currentType, ignoreCase = true)
-            // Simple "contains" check for location (e.g., "Nairobi" matches "Nairobi, Kenya")
             val matchLocation = currentLocation == null || farm.location.contains(currentLocation, ignoreCase = true)
-
             matchType && matchLocation
         }
     }
 
     fun getFarmById(id: String): Farm? = allFarmsCache.find { it.id == id }
 
-    // ... inside HomeViewModel class ...
-
-    // Helper to save booking
+    // --- BOOKING LOGIC ---
     fun createBooking(
         farmId: String,
         farmName: String,
@@ -80,8 +104,17 @@ class HomeViewModel : ViewModel() {
         paymentMethod: String,
         onResult: (Boolean) -> Unit
     ) {
+        // Get the REAL User ID
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (userId == null) {
+            onResult(false) // Not logged in
+            return
+        }
+
         viewModelScope.launch {
             val booking = Booking(
+                userId = userId, // Use real ID
                 farmId = farmId,
                 farmName = farmName,
                 date = date,
@@ -96,9 +129,11 @@ class HomeViewModel : ViewModel() {
     }
 
     fun fetchUserBookings() {
+        // Get the REAL User ID
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+
         viewModelScope.launch {
-            // "test_user_1" matches the hardcoded ID we used in BookingScreen
-            _myBookings.value = repository.getBookingsForUser("test_user_1")
+            _myBookings.value = repository.getBookingsForUser(userId)
         }
     }
 
@@ -106,7 +141,6 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             val success = repository.cancelBooking(bookingId)
             if (success) {
-                // Refresh the list so the UI updates immediately
                 fetchUserBookings()
             }
         }
@@ -118,7 +152,6 @@ class HomeViewModel : ViewModel() {
 
     fun loadSingleBooking(bookingId: String) {
         viewModelScope.launch {
-            // Clear previous data first so we don't show old info
             _currentBooking.value = null
             val booking = repository.getBooking(bookingId)
             _currentBooking.value = booking

@@ -104,4 +104,16 @@ class FarmRepository {
             null
         }
     }
+
+    private val usersCollection = db.collection("users")
+
+    suspend fun getUserProfile(userId: String): UserProfile? {
+        return try {
+            val snapshot = usersCollection.document(userId).get().await()
+            snapshot.toObject<UserProfile>()
+        } catch (e: Exception) {
+            Log.e("FarmRepo", "Error fetching user profile", e)
+            null
+        }
+    }
 }

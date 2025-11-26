@@ -1,9 +1,11 @@
 package com.example.agritour.ui.navigation
 
 enum class AppScreens {
+    SplashScreen,
+    AuthScreen,
     HomeScreen,
     ExploreScreen,
-    FarmDetailScreen, // We will add arguments (like farmId) to this later
+    FarmDetailScreen,
     BookingScreen,
     LearningHubScreen,
     ProfileScreen,
