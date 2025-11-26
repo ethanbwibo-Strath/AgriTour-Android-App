@@ -7,12 +7,18 @@ import com.example.agritour.data.FarmRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
     private val repository = FarmRepository()
+    private var allFarmsCache = listOf<Farm>()
 
-    // State: The list of farms to show in the UI
+    // Tracking active filters (null means "All")
+    private val _typeFilter = MutableStateFlow<String?>(null)
+    private val _locationFilter = MutableStateFlow<String?>(null)
+
+    // The final filtered list
     private val _farms = MutableStateFlow<List<Farm>>(emptyList())
     val farms: StateFlow<List<Farm>> = _farms.asStateFlow()
 
@@ -22,17 +28,36 @@ class HomeViewModel : ViewModel() {
 
     private fun fetchFarms() {
         viewModelScope.launch {
-            val fetchedFarms = repository.getFarms()
-            _farms.value = fetchedFarms
+            allFarmsCache = repository.getFarms()
+            applyFilters() // Initial load
         }
     }
 
-    // Call this ONLY ONCE from your MainActivity to populate DB
-    fun seedDatabase() {
-        repository.addDummyData()
+    // Called when user selects a specific Type (e.g., "Coffee")
+    fun setTypeFilter(type: String?) {
+        _typeFilter.value = type
+        applyFilters()
     }
 
-    fun getFarmById(farmId: String): Farm? {
-        return _farms.value.find { it.id == farmId }
+    // Called when user selects a specific Location (e.g., "Nairobi")
+    fun setLocationFilter(location: String?) {
+        _locationFilter.value = location
+        applyFilters()
     }
+
+    // The Master Filter Logic
+    private fun applyFilters() {
+        val currentType = _typeFilter.value
+        val currentLocation = _locationFilter.value
+
+        _farms.value = allFarmsCache.filter { farm ->
+            val matchType = currentType == null || farm.type.equals(currentType, ignoreCase = true)
+            // Simple "contains" check for location (e.g., "Nairobi" matches "Nairobi, Kenya")
+            val matchLocation = currentLocation == null || farm.location.contains(currentLocation, ignoreCase = true)
+
+            matchType && matchLocation
+        }
+    }
+
+    fun getFarmById(id: String): Farm? = allFarmsCache.find { it.id == id }
 }
