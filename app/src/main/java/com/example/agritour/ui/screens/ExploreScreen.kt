@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material3.*
@@ -41,24 +43,37 @@ fun ExploreScreen(
 ) {
     val farms by viewModel.farms.collectAsState()
 
-    // State to control which bottom sheet is open
+    val typeOptions by viewModel.availableTypes.collectAsState()
+    val locationOptions by viewModel.availableLocations.collectAsState()
+    val priceRange by viewModel.priceRange.collectAsState()
+    val maxDbPrice by viewModel.maxPriceInDb.collectAsState()
+    val minRating by viewModel.minRating.collectAsState()
+
     var showTypeSheet by remember { mutableStateOf(false) }
     var showLocationSheet by remember { mutableStateOf(false) }
+    var showPriceSheet by remember { mutableStateOf(false) }
+    var showRatingSheet by remember { mutableStateOf(false) }
 
-    // Filter Options (Hardcoded for now, or fetch from DB unique values)
-    val typeOptions = listOf("All", "Coffee", "Vegetables", "Herbs", "Fruits")
-    val locationOptions = listOf("All", "Nairobi", "Limuru", "Naivasha", "Mombasa", "Nakuru")
-
-    // State to track selected values for display on chips
     var selectedType by remember { mutableStateOf("All") }
     var selectedLocation by remember { mutableStateOf("All") }
 
     Scaffold(
         containerColor = AgriBackground,
         topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("Explore Farms", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = AgriBackground, titleContentColor = TextBlack)
+            // FIX 1: Smaller, Left-Aligned Title
+            TopAppBar(
+                title = {
+                    Text(
+                        "Explore Farms",
+                        style = MaterialTheme.typography.headlineSmall, // Reduced Size
+                        fontWeight = FontWeight.Bold,
+                        color = TextBlack
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = AgriBackground,
+                    titleContentColor = TextBlack
+                )
             )
         },
         bottomBar = {
@@ -68,9 +83,7 @@ fun ExploreScreen(
                     label = { Text("Home") },
                     selected = false,
                     onClick = onHomeClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextGrey,
-                        unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Outlined.Explore, contentDescription = null) },
@@ -87,43 +100,48 @@ fun ExploreScreen(
                     label = { Text("Learn") },
                     selected = false,
                     onClick = onLearnClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextGrey,
-                        unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
                 )
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
                     selected = false,
                     onClick = onProfileClick,
-                    colors = NavigationBarItemDefaults.colors(
-                        unselectedIconColor = TextGrey,
-                        unselectedTextColor = TextGrey)
+                    colors = NavigationBarItemDefaults.colors(unselectedIconColor = TextGrey, unselectedTextColor = TextGrey)
                 )
             }
         }
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
 
-            // 1. FILTER CHIPS ROW (Opens Sheets)
+            // FIX 2: Added Price and Rating Chips
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // TYPE CHIP
+                // Type
                 item {
+                    DropdownFilterChip("Farm Type", if (selectedType == "All") null else selectedType) { showTypeSheet = true }
+                }
+                // Location
+                item {
+                    DropdownFilterChip("Location", if (selectedLocation == "All") null else selectedLocation) { showLocationSheet = true }
+                }
+                // Price (Visual Placeholder)
+                item {
+                    val isPriceFiltered = priceRange.start > 0f || priceRange.endInclusive < maxDbPrice
                     DropdownFilterChip(
-                        label = "Farm Type",
-                        selectedValue = if (selectedType == "All") null else selectedType,
-                        onClick = { showTypeSheet = true }
+                        label = "Price",
+                        selectedValue = if (isPriceFiltered) "Ksh ${priceRange.start.toInt()}-${priceRange.endInclusive.toInt()}" else null,
+                        onClick = { showPriceSheet = true }
                     )
                 }
-                // LOCATION CHIP
+                // Rating (Visual Placeholder)
                 item {
                     DropdownFilterChip(
-                        label = "Location",
-                        selectedValue = if (selectedLocation == "All") null else selectedLocation,
-                        onClick = { showLocationSheet = true }
+                        label = "Rating",
+                        selectedValue = if (minRating > 0.0) "${minRating.toInt()}+ Stars" else null,
+                        onClick = { showRatingSheet = true }
                     )
                 }
             }
@@ -146,18 +164,20 @@ fun ExploreScreen(
                             location = farm.location,
                             rating = farm.rating,
                             imageUrl = farm.imageUrl,
+                            price = farm.price,
+                            actionText = "View Details",
                             onBookClick = { onFarmClick(farm.id) }
                         )
                     }
                 }
+                item { Spacer(modifier = Modifier.height(16.dp)) }
             }
         }
 
-        // 3. BOTTOM SHEETS (The Dropdowns)
-
+        // 3. BOTTOM SHEETS
         if (showTypeSheet) {
             FilterBottomSheet(
-                title = "Select Plant Type",
+                title = "Select Farm Type",
                 options = typeOptions,
                 currentSelection = selectedType,
                 onDismiss = { showTypeSheet = false },
@@ -182,6 +202,23 @@ fun ExploreScreen(
                 }
             )
         }
+
+        if (showPriceSheet) {
+            PriceFilterSheet(
+                currentRange = priceRange,
+                maxPrice = maxDbPrice,
+                onDismiss = { showPriceSheet = false },
+                onRangeSelected = { viewModel.setPriceRange(it) }
+            )
+        }
+
+        if (showRatingSheet) {
+            RatingFilterSheet(
+                currentRating = minRating,
+                onDismiss = { showRatingSheet = false },
+                onRatingSelected = { viewModel.setMinRating(it) }
+            )
+        }
     }
 }
 
@@ -198,7 +235,7 @@ fun DropdownFilterChip(
         onClick = onClick,
         label = {
             Text(
-                text = selectedValue ?: label, // Show "Coffee" or "Plant Type"
+                text = selectedValue ?: label,
                 color = if (isSelected) AgriGreen else TextBlack,
                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
             )
@@ -233,7 +270,6 @@ fun FilterBottomSheet(
         containerColor = Color.White
     ) {
         Column(modifier = Modifier.padding(bottom = 32.dp)) {
-            // Header
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -241,15 +277,14 @@ fun FilterBottomSheet(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+                Text(title, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextBlack)
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    Icon(Icons.Default.Close, contentDescription = "Close", tint = TextBlack)
                 }
             }
 
-            Divider(color = AgriBackground)
+            Divider(color = AgriGreen)
 
-            // Options List
             LazyColumn {
                 items(options) { option ->
                     val isSelected = option == currentSelection
@@ -273,6 +308,172 @@ fun FilterBottomSheet(
                     }
                 }
             }
+        }
+    }
+}
+
+// --- PRICE FILTER SHEET ---
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PriceFilterSheet(
+    currentRange: ClosedFloatingPointRange<Float>,
+    maxPrice: Float,
+    onDismiss: () -> Unit,
+    onRangeSelected: (ClosedFloatingPointRange<Float>) -> Unit
+) {
+    // Local state for slider interaction
+    var sliderPosition by remember { mutableStateOf(currentRange) }
+
+    // Preset Options
+    val presets = listOf(
+        "0 - 500" to 0f..500f,
+        "501 - 1000" to 501f..1000f,
+        "1001 - 2000" to 1001f..2000f,
+        "2000+" to 2001f..maxPrice
+    )
+
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Color.White) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            // Header
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // FIX: Added color = TextBlack
+                Text("Price Range", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextBlack)
+
+                TextButton(onClick = { onRangeSelected(0f..maxPrice); onDismiss() }) {
+                    // FIX: Added color = TextGrey (Dark Grey)
+                    Text("Reset", color = TextGrey)
+                }
+            }
+
+            Divider(modifier = Modifier.padding(vertical = 16.dp), color = AgriGreen)
+
+            // 1. Presets
+            // FIX: Added color = TextBlack
+            Text("Quick Select", style = MaterialTheme.typography.labelLarge, color = TextBlack)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(presets) { (label, range) ->
+                    val isSelected = sliderPosition.start == range.start && sliderPosition.endInclusive >= range.endInclusive
+
+                    FilterChip(
+                        selected = isSelected,
+                        onClick = { sliderPosition = range },
+                        label = {
+                            // FIX: Ensure label is readable based on selection
+                            Text(label, color = if (isSelected) Color.White else TextBlack)
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = AgriGreen,
+                            containerColor = Color.White
+                        ),
+                        border = FilterChipDefaults.filterChipBorder(
+                            borderColor = if (isSelected) AgriGreen else BorderColor,
+                            borderWidth = 1.dp,
+                            selected = isSelected,
+                            enabled = true
+                        )
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 2. Slider
+            // FIX: Custom Range text uses AgriGreen, which is dark enough
+            Text(
+                text = "Custom Range: Ksh ${sliderPosition.start.toInt()} - Ksh ${sliderPosition.endInclusive.toInt()}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = AgriGreen
+            )
+
+            RangeSlider(
+                value = sliderPosition,
+                onValueChange = { sliderPosition = it },
+                valueRange = 0f..maxPrice,
+                colors = SliderDefaults.colors(thumbColor = AgriGreen, activeTrackColor = AgriGreen, inactiveTrackColor = AgriBackground)
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Apply Button
+            Button(
+                onClick = { onRangeSelected(sliderPosition); onDismiss() },
+                modifier = Modifier.fillMaxWidth().height(50.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AgriGreen),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Apply Price Filter", fontWeight = FontWeight.Bold, color = Color.White)
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+// --- RATING FILTER SHEET ---
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RatingFilterSheet(
+    currentRating: Double,
+    onDismiss: () -> Unit,
+    onRatingSelected: (Double) -> Unit
+) {
+    val ratings = listOf(4.0, 3.0, 2.0, 1.0)
+
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = Color.White) {
+        Column(modifier = Modifier.padding(24.dp)) {
+            // FIX: Added color = TextBlack
+            Text("Filter by Rating", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = TextBlack)
+            Divider(modifier = Modifier.padding(vertical = 16.dp), color = AgriGreen)
+
+            // "All Ratings" Option
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onRatingSelected(0.0); onDismiss() }
+                    .padding(vertical = 12.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // FIX: Added color = TextBlack
+                Text("Show All", style = MaterialTheme.typography.bodyLarge, color = TextBlack)
+                if (currentRating == 0.0) Icon(Icons.Default.Check, null, tint = AgriGreen)
+            }
+
+            // Star Options
+            ratings.forEach { rating ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onRatingSelected(rating); onDismiss() }
+                        .padding(vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Stars Display
+                    Row {
+                        repeat(5) { index ->
+                            Icon(
+                                imageVector = Icons.Default.Star,
+                                contentDescription = null,
+                                tint = if (index < rating) Color(0xFFFFB300) else Color.LightGray,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    // FIX: Added color = TextBlack (or TextGrey)
+                    Text("& up", style = MaterialTheme.typography.bodyMedium, color = TextBlack)
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    if (currentRating == rating) Icon(Icons.Default.Check, null, tint = AgriGreen)
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }

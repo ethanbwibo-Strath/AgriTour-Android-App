@@ -87,6 +87,7 @@ fun MyListingsScreen(
                         farmType = farm.type,
                         location = farm.location,
                         rating = farm.rating,
+                        price = farm.price,
                         imageUrl = farm.imageUrl,
                         actionText = "Edit Listing",
                         onBookClick = { onFarmClick(farm.id) }

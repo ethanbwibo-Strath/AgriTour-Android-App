@@ -34,6 +34,20 @@ class HomeViewModel : ViewModel() {
     val incomingBookings: StateFlow<List<Booking>> = _incomingBookings.asStateFlow()
     private val _currentFarmOwner = MutableStateFlow<UserProfile?>(null)
     val currentFarmOwner: StateFlow<UserProfile?> = _currentFarmOwner.asStateFlow()
+    private val _availableTypes = MutableStateFlow<List<String>>(listOf("All"))
+    val availableTypes: StateFlow<List<String>> = _availableTypes.asStateFlow()
+
+    private val _availableLocations = MutableStateFlow<List<String>>(listOf("All"))
+    val availableLocations: StateFlow<List<String>> = _availableLocations.asStateFlow()
+
+    private val _priceRange = MutableStateFlow(0f..Float.MAX_VALUE)
+    val priceRange: StateFlow<ClosedFloatingPointRange<Float>> = _priceRange.asStateFlow()
+
+    private val _maxPriceInDb = MutableStateFlow(5000f) // Default fallback
+    val maxPriceInDb: StateFlow<Float> = _maxPriceInDb.asStateFlow()
+
+    private val _minRating = MutableStateFlow(0.0)
+    val minRating: StateFlow<Double> = _minRating.asStateFlow()
 
     init {
         fetchFarms()
@@ -66,6 +80,18 @@ class HomeViewModel : ViewModel() {
     private fun fetchFarms() {
         viewModelScope.launch {
             allFarmsCache = repository.getFarms()
+
+            // Calculate Unique Options
+            val types = listOf("All") + allFarmsCache.map { it.type }.distinct().sorted()
+            val locations = listOf("All") + allFarmsCache.map { it.location }.distinct().sorted()
+
+            _availableTypes.value = types
+            _availableLocations.value = locations
+
+            val maxPrice = allFarmsCache.maxOfOrNull { it.price }?.toFloat() ?: 5000f
+            _maxPriceInDb.value = maxPrice
+            _priceRange.value = 0f..maxPrice
+
             applyFilters()
         }
     }
@@ -80,14 +106,32 @@ class HomeViewModel : ViewModel() {
         applyFilters()
     }
 
+    fun setPriceRange(range: ClosedFloatingPointRange<Float>) {
+        _priceRange.value = range
+        applyFilters()
+    }
+
+    fun setMinRating(rating: Double) {
+        _minRating.value = rating
+        applyFilters()
+    }
+
     private fun applyFilters() {
         val currentType = _typeFilter.value
         val currentLocation = _locationFilter.value
+        val currentPrice = _priceRange.value
+        val currentRating = _minRating.value
 
         _farms.value = allFarmsCache.filter { farm ->
+            // 1. String Matches
             val matchType = currentType == null || farm.type.equals(currentType, ignoreCase = true)
             val matchLocation = currentLocation == null || farm.location.contains(currentLocation, ignoreCase = true)
-            matchType && matchLocation
+
+            // 2. Number Matches
+            val matchPrice = farm.price.toFloat() >= currentPrice.start && farm.price.toFloat() <= currentPrice.endInclusive
+            val matchRating = farm.rating >= currentRating
+
+            matchType && matchLocation && matchPrice && matchRating
         }
     }
 

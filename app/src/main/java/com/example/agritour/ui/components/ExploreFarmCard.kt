@@ -28,8 +28,9 @@ fun ExploreFarmCard(
     farmType: String,
     location: String,
     rating: Double,
+    price: Int,
     imageUrl: String,
-    actionText: String = "Book Visit",
+    actionText: String = "View Details",
     onBookClick: () -> Unit
 ) {
     Card(
@@ -103,11 +104,23 @@ fun ExploreFarmCard(
 
             // 2. Details and Button section
             Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = "$farmType • $location",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextGrey
-                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "$farmType • $location",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextGrey
+                    )
+                    // PRICE DISPLAY
+                    Text(
+                        text = "Ksh $price",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = AgriGreen
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
