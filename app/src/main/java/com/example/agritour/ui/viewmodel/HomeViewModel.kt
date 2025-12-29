@@ -3,6 +3,7 @@ package com.example.agritour.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.agritour.data.Booking
+import com.example.agritour.data.ChatMessage
 import com.example.agritour.data.Farm
 import com.example.agritour.data.FarmRepository
 import com.example.agritour.data.UserProfile
@@ -16,8 +17,8 @@ class HomeViewModel : ViewModel() {
 
     private val repository = FarmRepository()
     private var allFarmsCache = listOf<Farm>()
+    private val auth = FirebaseAuth.getInstance()
 
-    // --- STATE ---
     private val _currentUser = MutableStateFlow<UserProfile?>(null)
     val currentUser: StateFlow<UserProfile?> = _currentUser.asStateFlow()
     private val _typeFilter = MutableStateFlow<String?>(null)
@@ -48,6 +49,9 @@ class HomeViewModel : ViewModel() {
 
     private val _minRating = MutableStateFlow(0.0)
     val minRating: StateFlow<Double> = _minRating.asStateFlow()
+
+    private val _chatMessages = MutableStateFlow<List<ChatMessage>>(emptyList())
+    val chatMessages: StateFlow<List<ChatMessage>> = _chatMessages.asStateFlow()
 
     init {
         fetchFarms()
@@ -265,4 +269,37 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    private fun getConversationId(userId1: String, userId2: String): String {
+        return if (userId1 < userId2) {
+            "${userId1}_${userId2}"
+        } else {
+            "${userId2}_${userId1}"
+        }
+    }
+
+    fun loadMessages(otherUserId: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val conversationId = getConversationId(currentUserId, otherUserId)
+
+        viewModelScope.launch {
+            repository.getMessages(conversationId).collect { messages ->
+                _chatMessages.value = messages
+            }
+        }
+    }
+
+    fun sendMessage(text: String, otherUserId: String) {
+        val currentUserId = auth.currentUser?.uid ?: return
+        if (text.isBlank()) return
+
+        val conversationId = getConversationId(currentUserId, otherUserId)
+        val message = ChatMessage(
+            senderId = currentUserId,
+            text = text
+        )
+
+        viewModelScope.launch {
+            repository.sendMessage(conversationId, message)
+        }
+    }
 }

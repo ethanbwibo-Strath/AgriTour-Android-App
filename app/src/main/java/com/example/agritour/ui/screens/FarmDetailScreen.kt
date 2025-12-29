@@ -47,6 +47,7 @@ fun FarmDetailScreen(
     farmId: String,
     onBackClick: () -> Unit,
     onBookClick: () -> Unit,
+    onChatClick: (String, String) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val farms by viewModel.farms.collectAsState()
@@ -238,7 +239,7 @@ fun FarmDetailScreen(
 
                 // Chat Button
                 Button(
-                    onClick = { /* Open Chat */ },
+                    onClick = {onChatClick(owner?.uid ?: "", owner?.name ?: "Farm Owner") },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = AgriGreen),
                     shape = RoundedCornerShape(50)

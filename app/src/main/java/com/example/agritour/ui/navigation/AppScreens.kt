@@ -13,6 +13,6 @@ enum class AppScreens {
     MyBookingsScreen,
     MyListingsScreen,
     AddFarmScreen,
-    RevenueScreen
-
+    RevenueScreen,
+    ChatScreen
 }

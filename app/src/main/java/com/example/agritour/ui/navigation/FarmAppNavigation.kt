@@ -25,6 +25,7 @@ import com.example.agritour.ui.screens.MyListingsScreen
 import com.example.agritour.ui.screens.ProfileScreen
 import com.example.agritour.ui.screens.RevenueScreen
 import com.example.agritour.ui.screens.SplashScreen
+import com.example.agritour.ui.screens.ChatScreen
 
 @Composable
 fun FarmAppNavigation() {
@@ -115,16 +116,20 @@ fun FarmAppNavigation() {
 
         // 3. Farm Detail Screen
         composable(
-                route = "${AppScreens.FarmDetailScreen.name}/{farmId}",
-                arguments = listOf(navArgument("farmId") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val farmId = backStackEntry.arguments?.getString("farmId") ?: ""
+            route = "${AppScreens.FarmDetailScreen.name}/{farmId}",
+            arguments = listOf(navArgument("farmId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val farmId = backStackEntry.arguments?.getString("farmId") ?: ""
             FarmDetailScreen(
-                    farmId = farmId,
-                    onBackClick = { navController.popBackStack() },
-                    onBookClick = { navController.navigate("${AppScreens.BookingScreen.name}/$farmId") }
-                )
-            }
+                farmId = farmId,
+                onBackClick = { navController.popBackStack() },
+                onBookClick = { navController.navigate("${AppScreens.BookingScreen.name}/$farmId") },
+                // PASS ARGUMENTS TO ROUTE
+                onChatClick = { ownerId, ownerName ->
+                    navController.navigate("${AppScreens.ChatScreen.name}/$ownerId/$ownerName")
+                }
+            )
+        }
 
         // 4. Booking Screen
         composable(
@@ -265,10 +270,28 @@ fun FarmAppNavigation() {
             )
         }
 
-        // 11. Revenue Screen (New)
+        // 11. Revenue Screen
         composable(route = AppScreens.RevenueScreen.name) {
             RevenueScreen(
                 onBackClick = { navController.popBackStack() }
+            )
+        }
+
+        // 12. Chat Screen
+        composable(
+            route = "${AppScreens.ChatScreen.name}/{ownerId}/{ownerName}",
+            arguments = listOf(
+                navArgument("ownerId") { type = NavType.StringType },
+                navArgument("ownerName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val ownerId = backStackEntry.arguments?.getString("ownerId") ?: ""
+            val ownerName = backStackEntry.arguments?.getString("ownerName") ?: "Farm Owner"
+
+            ChatScreen(
+                onBackClick = { navController.popBackStack() },
+                ownerId = ownerId,
+                ownerName = ownerName
             )
         }
     }

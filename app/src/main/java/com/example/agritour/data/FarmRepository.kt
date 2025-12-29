@@ -5,11 +5,20 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
 import kotlinx.coroutines.tasks.await
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 class FarmRepository {
     private val db = FirebaseFirestore.getInstance()
     private val farmsCollection = db.collection("farms")
     private val storage = com.google.firebase.storage.FirebaseStorage.getInstance()
+    private val database = FirebaseDatabase.getInstance().reference
 
     // 1. Fetch all farms
     suspend fun getFarms(): List<Farm> {
@@ -163,5 +172,29 @@ class FarmRepository {
         } catch (e: Exception) {
             emptyList()
         }
+    }
+
+    suspend fun sendMessage(conversationId: String, message: ChatMessage) {
+        val messageRef = database.child("chats").child(conversationId).push() // Generates unique ID
+        val messageWithId = message.copy(id = messageRef.key ?: "")
+        messageRef.setValue(messageWithId).await()
+    }
+
+    fun getMessages(conversationId: String): Flow<List<ChatMessage>> = callbackFlow {
+        val chatRef = database.child("chats").child(conversationId)
+
+        val listener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val messages = snapshot.children.mapNotNull { it.getValue(ChatMessage::class.java) }
+                trySend(messages) // Emit new list to the UI
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+
+        chatRef.addValueEventListener(listener)
+        awaitClose { chatRef.removeEventListener(listener) } // Cleanup when screen closes
     }
 }
