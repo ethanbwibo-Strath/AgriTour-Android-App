@@ -187,7 +187,11 @@ fun ProfileScreen(
                         )
                         Divider(color = AgriBackground)
 
-                        ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Message, title = "Inquiries & Chats", onClick = {})
+                        ProfileMenuItem(
+                            icon = Icons.AutoMirrored.Outlined.Message,
+                            title = "Inquiries & Chats",
+                            onClick = onConversationClick
+                        )
                     } else {
                         // Visitor Menu
                         ProfileMenuItem(

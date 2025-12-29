@@ -23,6 +23,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.viewmodel.HomeViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -57,9 +59,10 @@ fun ConversationListScreen(
             LazyColumn(modifier = Modifier.fillMaxSize().padding(padding)) {
                 items(conversations) { chat ->
                     ConversationItem(
-                        name = "User ${chat.peerId.take(5)}", // Temporary until we fetch real name
+                        name = chat.peerName,
                         lastMessage = chat.lastMessage,
-                        onClick = { onChatClick(chat.peerId, "User") }
+                        timestamp = chat.timestamp,
+                        onClick = { onChatClick(chat.peerId, chat.peerName) }
                     )
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp, color = Color.LightGray)
                 }
@@ -69,7 +72,12 @@ fun ConversationListScreen(
 }
 
 @Composable
-fun ConversationItem(name: String, lastMessage: String, onClick: () -> Unit) {
+fun ConversationItem(
+    name: String,
+    lastMessage: String,
+    timestamp: Long,
+    onClick: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -77,15 +85,39 @@ fun ConversationItem(name: String, lastMessage: String, onClick: () -> Unit) {
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        // Avatar
         Box(
-            modifier = Modifier.size(50.dp).clip(CircleShape).background(Color.LightGray),
+            modifier = Modifier
+                .size(52.dp)
+                .clip(CircleShape)
+                .background(AgriGreen.copy(alpha = 0.1f)),
             contentAlignment = Alignment.Center
         ) {
-            Icon(Icons.Default.Person, null, tint = Color.White)
+            Icon(Icons.Default.Person, null, tint = AgriGreen, modifier = Modifier.size(28.dp))
         }
+
         Spacer(modifier = Modifier.width(16.dp))
+
         Column(modifier = Modifier.weight(1f)) {
-            Text(text = name, fontWeight = FontWeight.Bold, color = TextBlack, fontSize = 16.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = name,
+                    fontWeight = FontWeight.Bold,
+                    color = TextBlack,
+                    fontSize = 17.sp
+                )
+                // Display the formatted time
+                Text(
+                    text = formatTimestamp(timestamp),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = lastMessage,
                 style = MaterialTheme.typography.bodyMedium,
@@ -95,4 +127,10 @@ fun ConversationItem(name: String, lastMessage: String, onClick: () -> Unit) {
             )
         }
     }
+}
+fun formatTimestamp(timestamp: Long): String {
+    if (timestamp == 0L) return ""
+    val sdf = SimpleDateFormat("h:mm a", Locale.getDefault())
+    val date = Date(timestamp)
+    return sdf.format(date)
 }

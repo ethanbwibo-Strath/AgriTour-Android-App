@@ -13,6 +13,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,6 +24,7 @@ class HomeViewModel : ViewModel() {
     private val repository = FarmRepository()
     private var allFarmsCache = listOf<Farm>()
     private val auth = FirebaseAuth.getInstance()
+    private val db = FirebaseFirestore.getInstance()
 
     private val _currentUser = MutableStateFlow<UserProfile?>(null)
     val currentUser: StateFlow<UserProfile?> = _currentUser.asStateFlow()
@@ -321,27 +323,45 @@ class HomeViewModel : ViewModel() {
 
                 snapshot.children.forEach { doc ->
                     val roomId = doc.key ?: ""
-
-                    // Only pick rooms that involve ME
                     if (roomId.contains(currentUserId)) {
                         val lastMsg = doc.children.lastOrNull()?.getValue(ChatMessage::class.java)
-
-                        // Extract the OTHER user's ID from the room name
                         val otherId = roomId.split("_").find { it != currentUserId } ?: ""
 
-                        // For now, we use a placeholder name; we'll fetch real names in the UI
-                        list.add(Conversation(
+                        // We create the conversation with a placeholder name first
+                        val convo = Conversation(
                             peerId = otherId,
+                            peerName = "Loading...", // Placeholder
                             lastMessage = lastMsg?.text ?: "No messages",
                             roomId = roomId,
                             timestamp = lastMsg?.timestamp ?: 0
-                        ))
+                        )
+                        list.add(convo)
+
+                        // Fetch the real name from Firestore
+                        fetchPeerName(otherId) { realName ->
+                            updateConversationName(otherId, realName)
+                        }
                     }
                 }
-                // Sort by newest message first
                 _conversations.value = list.sortedByDescending { it.timestamp }
             }
             override fun onCancelled(error: DatabaseError) {}
         })
+    }
+
+    // Helper to fetch name from Firestore
+    private fun fetchPeerName(uid: String, onResult: (String) -> Unit) {
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { doc ->
+                val name = doc.getString("name") ?: "Unknown User"
+                onResult(name)
+            }
+    }
+
+    // Helper to update the name in our state list
+    private fun updateConversationName(peerId: String, name: String) {
+        _conversations.value = _conversations.value.map {
+            if (it.peerId == peerId) it.copy(peerName = name) else it
+        }
     }
 }
