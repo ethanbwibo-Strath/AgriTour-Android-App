@@ -7,6 +7,7 @@ enum class AppScreens {
     ExploreScreen,
     FarmDetailScreen,
     BookingScreen,
+    BookingDetailScreen,
     LearningHubScreen,
     ProfileScreen,
     OwnerDashboardScreen,
@@ -14,5 +15,6 @@ enum class AppScreens {
     MyListingsScreen,
     AddFarmScreen,
     RevenueScreen,
-    ChatScreen
+    ChatScreen,
+    ConversationListScreen,
 }

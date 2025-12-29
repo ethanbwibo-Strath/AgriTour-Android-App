@@ -4,10 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.agritour.data.Booking
 import com.example.agritour.data.ChatMessage
+import com.example.agritour.data.Conversation
 import com.example.agritour.data.Farm
 import com.example.agritour.data.FarmRepository
 import com.example.agritour.data.UserProfile
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,6 +57,9 @@ class HomeViewModel : ViewModel() {
 
     private val _chatMessages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val chatMessages: StateFlow<List<ChatMessage>> = _chatMessages.asStateFlow()
+
+    private val _conversations = MutableStateFlow<List<Conversation>>(emptyList())
+    val conversations: StateFlow<List<Conversation>> = _conversations.asStateFlow()
 
     init {
         fetchFarms()
@@ -301,5 +309,39 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             repository.sendMessage(conversationId, message)
         }
+    }
+
+    fun loadConversations() {
+        val currentUserId = auth.currentUser?.uid ?: return
+        val chatRef = FirebaseDatabase.getInstance().reference.child("chats")
+
+        chatRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<Conversation>()
+
+                snapshot.children.forEach { doc ->
+                    val roomId = doc.key ?: ""
+
+                    // Only pick rooms that involve ME
+                    if (roomId.contains(currentUserId)) {
+                        val lastMsg = doc.children.lastOrNull()?.getValue(ChatMessage::class.java)
+
+                        // Extract the OTHER user's ID from the room name
+                        val otherId = roomId.split("_").find { it != currentUserId } ?: ""
+
+                        // For now, we use a placeholder name; we'll fetch real names in the UI
+                        list.add(Conversation(
+                            peerId = otherId,
+                            lastMessage = lastMsg?.text ?: "No messages",
+                            roomId = roomId,
+                            timestamp = lastMsg?.timestamp ?: 0
+                        ))
+                    }
+                }
+                // Sort by newest message first
+                _conversations.value = list.sortedByDescending { it.timestamp }
+            }
+            override fun onCancelled(error: DatabaseError) {}
+        })
     }
 }

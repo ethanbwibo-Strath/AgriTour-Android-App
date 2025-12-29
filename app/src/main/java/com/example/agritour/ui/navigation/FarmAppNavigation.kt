@@ -26,6 +26,8 @@ import com.example.agritour.ui.screens.ProfileScreen
 import com.example.agritour.ui.screens.RevenueScreen
 import com.example.agritour.ui.screens.SplashScreen
 import com.example.agritour.ui.screens.ChatScreen
+import com.example.agritour.ui.screens.ConversationListScreen
+
 
 @Composable
 fun FarmAppNavigation() {
@@ -203,6 +205,9 @@ fun FarmAppNavigation() {
                 onRevenueClick = {
                     navController.navigate(AppScreens.RevenueScreen.name)
                 },
+                onConversationClick = {
+                    navController.navigate(AppScreens.ConversationListScreen.name)
+                },
                 onLogoutClick = {
                     navController.navigate(AppScreens.AuthScreen.name) {
                         popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
@@ -292,6 +297,16 @@ fun FarmAppNavigation() {
                 onBackClick = { navController.popBackStack() },
                 ownerId = ownerId,
                 ownerName = ownerName
+            )
+        }
+
+        //13. Conversation List Screen
+        composable(AppScreens.ConversationListScreen.name) {
+            ConversationListScreen(
+                onBackClick = { navController.popBackStack() },
+                onChatClick = { id, name ->
+                    navController.navigate("${AppScreens.ChatScreen.name}/$id/$name")
+                }
             )
         }
     }

@@ -49,6 +49,7 @@ fun ProfileScreen(
     onMyBookingsClick: () -> Unit,
     onMyListingsClick: () -> Unit,
     onRevenueClick: () -> Unit,
+    onConversationClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
     onLogoutClick: () -> Unit = {}
 ) {
@@ -206,7 +207,7 @@ fun ProfileScreen(
                         ProfileMenuItem(
                             icon = Icons.AutoMirrored.Outlined.Message,
                             title = "Chats & Messages",
-                            onClick = {}
+                            onClick = onConversationClick
                         )
                         Divider(color = AgriBackground)
 
