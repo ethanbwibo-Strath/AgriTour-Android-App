@@ -17,4 +17,5 @@ enum class AppScreens {
     RevenueScreen,
     ChatScreen,
     ConversationListScreen,
+    EditProfileScreen,
 }

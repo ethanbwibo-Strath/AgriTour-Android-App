@@ -25,7 +25,8 @@ class HomeViewModel : ViewModel() {
     private var allFarmsCache = listOf<Farm>()
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
-
+    private val _userProfile = MutableStateFlow<UserProfile?>(null)
+    val userProfile: StateFlow<UserProfile?> = _userProfile.asStateFlow()
     private val _currentUser = MutableStateFlow<UserProfile?>(null)
     val currentUser: StateFlow<UserProfile?> = _currentUser.asStateFlow()
     private val _typeFilter = MutableStateFlow<String?>(null)
@@ -66,6 +67,7 @@ class HomeViewModel : ViewModel() {
     init {
         fetchFarms()
         fetchCurrentUser()
+        fetchUserProfile()
     }
 
     // --- USER LOGIC ---
@@ -83,6 +85,21 @@ class HomeViewModel : ViewModel() {
             }
         }
     }
+
+    fun fetchUserProfile() {
+        val currentUser = auth.currentUser ?: return
+
+        // Listen for real-time updates from Firestore
+        db.collection("users").document(currentUser.uid)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) return@addSnapshotListener
+
+                if (snapshot != null && snapshot.exists()) {
+                    _userProfile.value = snapshot.toObject(UserProfile::class.java)
+                }
+            }
+    }
+
 
     fun signOut() {
         FirebaseAuth.getInstance().signOut()

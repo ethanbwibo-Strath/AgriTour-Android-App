@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -53,6 +54,7 @@ fun ProfileScreen(
     onRevenueClick: () -> Unit,
     onConversationClick: () -> Unit,
     viewModel: HomeViewModel = viewModel(),
+    onMyProfileClick: () -> Unit,
     onLogoutClick: () -> Unit = {}
 ) {
     LaunchedEffect(Unit) {
@@ -226,6 +228,8 @@ fun ProfileScreen(
                 )
 
                 MenuCard {
+                    ProfileMenuItem(icon = Icons.Outlined.Person, title = "Edit Profile", onClick = onMyProfileClick)
+                    Divider(color = AgriBackground)
                     ProfileMenuItem(icon = Icons.Outlined.Settings, title = "Settings", onClick = {})
                     Divider(color = AgriBackground)
                     ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Help, title = "Help & Support", onClick = {})
@@ -233,11 +237,11 @@ fun ProfileScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 4. Logout Button (Now Functional)
+                // 4. Logout Button
                 Button(
                     onClick = {
-                        viewModel.signOut() // 1. Clear Data
-                        onLogoutClick()     // 2. Navigate to Auth
+                        viewModel.signOut()
+                        onLogoutClick()
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE)),
                     modifier = Modifier

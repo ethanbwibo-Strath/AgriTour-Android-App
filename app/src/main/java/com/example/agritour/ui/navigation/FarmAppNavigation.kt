@@ -27,6 +27,8 @@ import com.example.agritour.ui.screens.RevenueScreen
 import com.example.agritour.ui.screens.SplashScreen
 import com.example.agritour.ui.screens.ChatScreen
 import com.example.agritour.ui.screens.ConversationListScreen
+import com.example.agritour.ui.screens.EditProfileScreen
+
 
 
 @Composable
@@ -208,6 +210,9 @@ fun FarmAppNavigation() {
                 onConversationClick = {
                     navController.navigate(AppScreens.ConversationListScreen.name)
                 },
+                onMyProfileClick = {
+                    navController.navigate(AppScreens.EditProfileScreen.name)
+                },
                 onLogoutClick = {
                     navController.navigate(AppScreens.AuthScreen.name) {
                         popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
@@ -329,6 +334,34 @@ fun FarmAppNavigation() {
                 }
             )
         }
+
+        // 14. Edit Profile Screen
+        composable(route = AppScreens.EditProfileScreen.name) {
+            EditProfileScreen(
+                onBackClick = { navController.popBackStack() },
+                onHomeClick = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
+                },
+                onExploreClick = {
+                    navController.navigate(AppScreens.ExploreScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onLearnClick = {
+                    navController.navigate(AppScreens.LearningHubScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onProfileClick = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
     }
 }
 

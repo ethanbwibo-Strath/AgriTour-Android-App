@@ -52,9 +52,9 @@ fun AuthScreen(
 
     // Helper for Input Colors (Reusable)
     val inputColors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = TextBlack,          // Text you type is BLACK
+        focusedTextColor = TextBlack,
         unfocusedTextColor = TextBlack,
-        focusedLabelColor = AgriGreen,         // Label turns Green when active
+        focusedLabelColor = AgriGreen,
         unfocusedLabelColor = TextGrey,
         focusedBorderColor = AgriGreen,
         unfocusedBorderColor = TextGrey.copy(alpha = 0.5f),
@@ -198,7 +198,7 @@ fun AuthScreen(
                 // 3. FORGOT PASSWORD LOGIC
                 Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
                     TextButton(onClick = {
-                        if (email.isNotEmpty()) {
+                        if (email.trim().isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches()) {
                             scope.launch {
                                 Toast.makeText(context, "Sending reset email...", Toast.LENGTH_SHORT).show()
                                 val success = repository.sendPasswordReset(email)

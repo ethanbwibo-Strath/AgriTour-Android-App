@@ -51,4 +51,27 @@ class AuthRepository {
     fun signOut() {
         auth.signOut()
     }
+
+    suspend fun updateProfile(newName: String, newEmail: String): String? {
+        return try {
+            val user = auth.currentUser ?: return "Not logged in"
+
+            // Update Firestore first (less sensitive)
+            val updates = mapOf(
+                "name" to newName,
+                "email" to newEmail
+            )
+            db.collection("users").document(user.uid).update(updates).await()
+
+            // Sensitive: Only update email if it actually changed
+            if (newEmail != user.email) {
+                user.updateEmail(newEmail).await()
+            }
+
+            null
+        } catch (e: Exception) {
+            // This will catch the "Requires Recent Login" error
+            e.localizedMessage ?: "An error occurred"
+        }
+    }
 }
