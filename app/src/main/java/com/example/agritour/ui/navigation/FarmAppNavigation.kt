@@ -306,6 +306,26 @@ fun FarmAppNavigation() {
                 onBackClick = { navController.popBackStack() },
                 onChatClick = { id, name ->
                     navController.navigate("${AppScreens.ChatScreen.name}/$id/$name")
+                },
+                onHomeClick = {
+                    navController.navigate(AppScreens.HomeScreen.name) {
+                        popUpTo(AppScreens.HomeScreen.name) { inclusive = true }
+                    }
+                },
+                onExploreClick = {
+                    navController.navigate(AppScreens.ExploreScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onLearnClick = {
+                    navController.navigate(AppScreens.LearningHubScreen.name) {
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onProfileClick = {
+                    navController.popBackStack()
                 }
             )
         }

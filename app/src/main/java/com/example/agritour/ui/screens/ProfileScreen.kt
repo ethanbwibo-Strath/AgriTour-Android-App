@@ -33,7 +33,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.agritour.ui.components.AgriAvatar
 import com.example.agritour.ui.navigation.AppScreens
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
@@ -119,24 +121,14 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Box(
-                        modifier = Modifier
-                            .size(100.dp)
-                            .clip(CircleShape)
-                            .background(AgriGreen.copy(alpha = 0.1f)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = if (isFarmer) Icons.Default.Agriculture else Icons.Default.Person,
-                            contentDescription = null,
-                            tint = AgriGreen,
-                            modifier = Modifier.size(50.dp)
-                        )
-                    }
+                    AgriAvatar(
+                        name = userProfile?.name ?: "",
+                        size = 100.dp,
+                        fontSize = 36.sp
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // --- DYNAMIC DATA FROM FIRESTORE ---
                     Text(
                         text = userProfile?.name ?: "Loading Name...",
                         style = MaterialTheme.typography.titleLarge,

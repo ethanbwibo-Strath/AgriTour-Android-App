@@ -97,9 +97,12 @@ fun MyBookingsScreen(
                 NavigationBarItem(
                     icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Profile") },
-                    selected = true, // Highlight Profile since this is a sub-section of Profile
+                    selected = true,
                     onClick = onProfileClick,
-                    colors = NavigationBarItemDefaults.colors(selectedIconColor = AgriGreen, indicatorColor = Color.White)
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = AgriGreen,
+                        selectedTextColor = AgriGreen,
+                        indicatorColor = Color.White)
                 )
             }
         }

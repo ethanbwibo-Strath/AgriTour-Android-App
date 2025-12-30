@@ -12,23 +12,28 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.agritour.data.ChatMessage
+import com.example.agritour.ui.components.AgriAvatar
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
 import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.viewmodel.HomeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
+
+val timeFormatter = java.text.SimpleDateFormat("h:mm a", java.util.Locale.getDefault())
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
@@ -40,8 +45,8 @@ fun ChatScreen(
     var messageText by remember { mutableStateOf("") }
     val messages by viewModel.chatMessages.collectAsState()
     val currentUser = FirebaseAuth.getInstance().currentUser
-
     val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
 
     // Load messages and handle auto-scroll
     LaunchedEffect(ownerId) {
@@ -58,21 +63,13 @@ fun ChatScreen(
 
     Scaffold(
         containerColor = AgriBackground,
-        // FIX: Prevents Scaffold from adding its own padding when keyboard opens
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(Color.LightGray),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(Icons.Default.Person, null, tint = Color.White)
-                        }
+                        AgriAvatar(name = ownerName, size = 40.dp, fontSize = 16.sp)
+
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
@@ -153,33 +150,31 @@ fun ChatScreen(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.Top
+                .padding(horizontal = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item { Spacer(modifier = Modifier.height(6.dp)) }
 
             items(messages) { msg ->
                 val isMe = msg.senderId == currentUser?.uid
-                ChatBubble(message = msg.text, isMe = isMe)
+                ChatBubble(message = msg, isMe = isMe)
             }
 
-            item { Spacer(modifier = Modifier.height(16.dp)) }
+            item { Spacer(modifier = Modifier.height(6.dp)) }
         }
     }
 }
-
 @Composable
-fun ChatBubble(message: String, isMe: Boolean) {
+fun ChatBubble(message: ChatMessage, isMe: Boolean) {
+    val timeString = timeFormatter.format(java.util.Date(message.timestamp))
+
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth(), // Removed .padding(vertical = 10.dp)
         horizontalAlignment = if (isMe) Alignment.End else Alignment.Start
     ) {
         Surface(
             shape = RoundedCornerShape(
-                topStart = 16.dp,
-                topEnd = 16.dp,
+                topStart = 16.dp, topEnd = 16.dp,
                 bottomStart = if (isMe) 16.dp else 0.dp,
                 bottomEnd = if (isMe) 0.dp else 16.dp
             ),
@@ -187,13 +182,34 @@ fun ChatBubble(message: String, isMe: Boolean) {
             shadowElevation = 1.dp,
             modifier = Modifier.widthIn(max = 280.dp)
         ) {
-            Text(
-                text = message,
-                modifier = Modifier.padding(12.dp),
-                color = if (isMe) Color.White else TextBlack,
-                fontSize = 15.sp,
-                lineHeight = 20.sp
-            )
+
+            Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)) {
+                Text(
+                    text = message.text,
+                    color = if (isMe) Color.White else TextBlack,
+                    fontSize = 15.sp
+                )
+
+                Row(
+                    modifier = Modifier.align(Alignment.End).padding(top = 1.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = timeString,
+                        color = if (isMe) Color.White.copy(alpha = 0.7f) else Color.Gray,
+                        fontSize = 10.sp
+                    )
+                    if (isMe) {
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.DoneAll,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                }
+            }
         }
     }
 }
