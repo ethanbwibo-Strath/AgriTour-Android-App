@@ -136,7 +136,12 @@ fun EditProfileScreen(
             ) {
                 // If the user picked a local image, we could show a preview here
                 // For now, we use the initials avatar
-                AgriAvatar(name = name, size = 100.dp, fontSize = 36.sp)
+                AgriAvatar(
+                    name = name,
+                    imageUrl = userProfile?.profileImageUrl,
+                    size = 100.dp,
+                    fontSize = 36.sp
+                )
 
                 TextButton(onClick = {
                     photoPickerLauncher.launch(
@@ -182,14 +187,22 @@ fun EditProfileScreen(
 
                         isLoading = true
                         scope.launch {
-                            val error = authRepository.updateProfile(name, email)
+                            // 1. Update text profile
+                            val textError = authRepository.updateProfile(name, email)
+
+                            // 2. Upload image if user picked a new one
+                            var imageError: String? = null
+                            if (selectedImageUri != null) {
+                                imageError = authRepository.uploadProfileImage(selectedImageUri!!)
+                            }
+
                             isLoading = false
-                            if (error == null) {
-                                Toast.makeText(context, "Profile Updated!", Toast.LENGTH_SHORT).show()
+
+                            if (textError == null && imageError == null) {
+                                Toast.makeText(context, "Profile fully updated!", Toast.LENGTH_SHORT).show()
                                 onBackClick()
                             } else {
-                                // If this fails, it might be the "Recent Login" security error
-                                Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                                Toast.makeText(context, textError ?: imageError, Toast.LENGTH_LONG).show()
                             }
                         }
                     },

@@ -125,6 +125,7 @@ fun ProfileScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     AgriAvatar(
                         name = userProfile?.name ?: "",
+                        imageUrl = userProfile?.profileImageUrl,
                         size = 100.dp,
                         fontSize = 36.sp
                     )

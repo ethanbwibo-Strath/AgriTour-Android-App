@@ -2,11 +2,13 @@ package com.example.agritour.data
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     // Returns NULL if success, or an ERROR MESSAGE if failed
     suspend fun signUp(name: String, email: String, pass: String, isFarmer: Boolean): String? {
@@ -72,6 +74,28 @@ class AuthRepository {
         } catch (e: Exception) {
             // This will catch the "Requires Recent Login" error
             e.localizedMessage ?: "An error occurred"
+        }
+    }
+
+    suspend fun uploadProfileImage(imageUri: android.net.Uri): String? {
+        return try {
+            val userId = auth.currentUser?.uid ?: return null
+            // Create a reference to "profile_images/USER_ID.jpg"
+            val fileRef = storage.reference.child("profile_images/$userId.jpg")
+
+            // Upload the file
+            fileRef.putFile(imageUri).await()
+
+            // Get the downloadable URL
+            val downloadUrl = fileRef.downloadUrl.await().toString()
+
+            // Update Firestore with the new image URL
+            db.collection("users").document(userId)
+                .update("profileImageUrl", downloadUrl).await()
+
+            null // Success
+        } catch (e: Exception) {
+            e.localizedMessage
         }
     }
 }
