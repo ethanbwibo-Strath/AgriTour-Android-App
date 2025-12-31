@@ -57,12 +57,40 @@ fun ProfileScreen(
     onMyProfileClick: () -> Unit,
     onLogoutClick: () -> Unit = {}
 ) {
+    // 1. State for the Confirmation Dialog
+    var showLogoutDialog by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
-        viewModel.fetchCurrentUser()
+        viewModel.fetchUserProfile() // Ensuring we use the updated fetch method
     }
 
-    val userProfile by viewModel.currentUser.collectAsState()
+    val userProfile by viewModel.userProfile.collectAsState()
     val isFarmer = userProfile?.role == "farmer"
+
+    // 2. The Alert Dialog Logic
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Sign Out", fontWeight = FontWeight.Bold) },
+            text = { Text("Are you sure you want to log out of AgriTour?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.signOut()
+                    onLogoutClick()
+                    showLogoutDialog = false
+                }) {
+                    Text("Log Out", color = Color.Red, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Cancel", color = TextBlack)
+                }
+            },
+            containerColor = Color.White,
+            shape = RoundedCornerShape(16.dp)
+        )
+    }
 
     Scaffold(
         containerColor = AgriBackground,
@@ -114,7 +142,7 @@ fun ProfileScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
         ) {
-            // 1. Header Section
+            // Header Section
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -125,7 +153,7 @@ fun ProfileScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     AgriAvatar(
                         name = userProfile?.name ?: "",
-                        imageUrl = userProfile?.profileImageUrl,
+                        imageUrl = userProfile?.profileImageUrl, // Passes the URL from Firestore
                         size = 100.dp,
                         fontSize = 36.sp
                     )
@@ -148,9 +176,7 @@ fun ProfileScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 2. Menu Options
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-
                 Text(
                     text = if (isFarmer) "Farm Management" else "My Account",
                     style = MaterialTheme.typography.titleMedium,
@@ -160,67 +186,26 @@ fun ProfileScreen(
 
                 MenuCard {
                     if (isFarmer) {
-                        // Farmer Menu
-                        ProfileMenuItem(
-                            icon = Icons.Outlined.DateRange,
-                            title = "My Bookings",
-                            onClick = onMyBookingsClick
-                        )
-                        Divider(color = AgriBackground)
-
-                        ProfileMenuItem(
-                            icon = Icons.Outlined.List,
-                            title = "My Farm Listings",
-                            onClick = onMyListingsClick
-                        )
-                        Divider(color = AgriBackground)
-
-                        ProfileMenuItem(
-                            icon = Icons.Outlined.BarChart,
-                            title = "Revenue Analytics",
-                            onClick = onRevenueClick
-                        )
-                        Divider(color = AgriBackground)
-
-                        ProfileMenuItem(
-                            icon = Icons.AutoMirrored.Outlined.Message,
-                            title = "Inquiries & Chats",
-                            onClick = onConversationClick
-                        )
+                        ProfileMenuItem(Icons.Outlined.DateRange, "My Bookings", onMyBookingsClick)
+                        HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                        ProfileMenuItem(Icons.Outlined.List, "My Farm Listings", onMyListingsClick)
+                        HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                        ProfileMenuItem(Icons.Outlined.BarChart, "Revenue Analytics", onRevenueClick)
+                        HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                        ProfileMenuItem(Icons.AutoMirrored.Outlined.Message, "Inquiries & Chats", onConversationClick)
                     } else {
-                        // Visitor Menu
-                        ProfileMenuItem(
-                            icon = Icons.Outlined.DateRange,
-                            title = "My Bookings",
-                            onClick = onMyBookingsClick
-                        )
-                        Divider(color = AgriBackground)
-
-                        ProfileMenuItem(
-                            icon = Icons.Outlined.FavoriteBorder,
-                            title = "Saved Farms",
-                            onClick = {}
-                        )
-                        Divider(color = AgriBackground)
-
-                        ProfileMenuItem(
-                            icon = Icons.AutoMirrored.Outlined.Message,
-                            title = "Chats & Messages",
-                            onClick = onConversationClick
-                        )
-                        Divider(color = AgriBackground)
-
-                        ProfileMenuItem(
-                            icon = Icons.Outlined.CreditCard,
-                            title = "Payment Methods",
-                            onClick = {}
-                        )
+                        ProfileMenuItem(Icons.Outlined.DateRange, "My Bookings", onMyBookingsClick)
+                        HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                        ProfileMenuItem(Icons.Outlined.FavoriteBorder, "Saved Farms", {})
+                        HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                        ProfileMenuItem(Icons.AutoMirrored.Outlined.Message, "Chats & Messages", onConversationClick)
+                        HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                        ProfileMenuItem(Icons.Outlined.CreditCard, "Payment Methods", {})
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // 3. General Section
                 Text(
                     text = "General",
                     style = MaterialTheme.typography.titleMedium,
@@ -229,21 +214,18 @@ fun ProfileScreen(
                 )
 
                 MenuCard {
-                    ProfileMenuItem(icon = Icons.Outlined.Person, title = "Edit Profile", onClick = onMyProfileClick)
-                    Divider(color = AgriBackground)
-                    ProfileMenuItem(icon = Icons.Outlined.Settings, title = "Settings", onClick = {})
-                    Divider(color = AgriBackground)
-                    ProfileMenuItem(icon = Icons.AutoMirrored.Outlined.Help, title = "Help & Support", onClick = {})
+                    ProfileMenuItem(Icons.Outlined.Person, "Edit Profile", onMyProfileClick)
+                    HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                    ProfileMenuItem(Icons.Outlined.Settings, "Settings", {})
+                    HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+                    ProfileMenuItem(Icons.AutoMirrored.Outlined.Help, "Help & Support", {})
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(32.dp))
 
-                // 4. Logout Button
+                // 3. Updated Logout Button to trigger Dialog
                 Button(
-                    onClick = {
-                        viewModel.signOut()
-                        onLogoutClick()
-                    },
+                    onClick = { showLogoutDialog = true },
                     colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFEBEE)),
                     modifier = Modifier
                         .fillMaxWidth()

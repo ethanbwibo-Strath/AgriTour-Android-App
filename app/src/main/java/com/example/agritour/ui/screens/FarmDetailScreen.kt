@@ -40,6 +40,7 @@ import com.example.agritour.ui.viewmodel.HomeViewModel
 import coil.compose.AsyncImage
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import com.example.agritour.ui.components.AgriAvatar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,7 +48,7 @@ fun FarmDetailScreen(
     farmId: String,
     onBackClick: () -> Unit,
     onBookClick: () -> Unit,
-    onChatClick: (String, String) -> Unit,
+    onChatClick: (String, String, String) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     val farms by viewModel.farms.collectAsState()
@@ -202,33 +203,25 @@ fun FarmDetailScreen(
             // 6. Owner Profile Card
             ContentCard(title = "Owner Profile") {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    // Avatar (Placeholder for now, could rely on user profile image later)
-                    Box(
-                        modifier = Modifier
-                            .size(50.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFFD1F2EB))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person, // Or Icons.Default.Agriculture
-                            contentDescription = null,
-                            tint = AgriGreen,
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
+                    AgriAvatar(
+                        name = owner?.name ?: "Owner",
+                        imageUrl = owner?.profileImageUrl,
+                        size = 56.dp,
+                        fontSize = 20.sp
+                    )
 
                     Spacer(modifier = Modifier.width(16.dp))
 
                     Column {
                         // DYNAMIC NAME
                         Text(
-                            text = owner?.name ?: "Loading...", // <--- USE REAL NAME
+                            text = owner?.name ?: "Farm Owner's Name", // <--- USE REAL NAME
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
                         // Role/Email
                         Text(
-                            text = "Farm Owner", // You could also use owner?.email
+                            text = "Verified Farmer", // You could also use owner?.email
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextGrey
                         )
@@ -239,7 +232,12 @@ fun FarmDetailScreen(
 
                 // Chat Button
                 Button(
-                    onClick = {onChatClick(owner?.uid ?: "", owner?.name ?: "Farm Owner") },
+                    onClick = {onChatClick(
+                        owner?.uid ?: "",
+                        owner?.name ?: "Farm Owner",
+                        owner?.profileImageUrl ?: ""
+                        )
+                  },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(containerColor = AgriGreen),
                     shape = RoundedCornerShape(50)

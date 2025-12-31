@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,6 +49,7 @@ fun EditProfileScreen(
     // 2. Local states for the input fields
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
     val scope = rememberCoroutineScope()
@@ -176,6 +178,17 @@ fun EditProfileScreen(
                     singleLine = true
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("New Password") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    singleLine = true
+                )
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
@@ -194,6 +207,15 @@ fun EditProfileScreen(
                             var imageError: String? = null
                             if (selectedImageUri != null) {
                                 imageError = authRepository.uploadProfileImage(selectedImageUri!!)
+                            }
+
+                            if (password.isNotEmpty()) {
+                                if (password.length < 6) {
+                                    Toast.makeText(context, "Password too short", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    val passError = authRepository.updatePassword(password)
+                                    if (passError != null) Toast.makeText(context, passError, Toast.LENGTH_LONG).show()
+                                }
                             }
 
                             isLoading = false

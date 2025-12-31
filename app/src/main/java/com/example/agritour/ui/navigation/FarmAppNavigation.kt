@@ -83,7 +83,6 @@ fun FarmAppNavigation() {
                         restoreState = true
                     }
                 },
-                // Add this if you updated HomeScreen signature, otherwise remove
                 onProfileClick = {
                     navController.navigate(AppScreens.ProfileScreen.name) {
                         launchSingleTop = true
@@ -128,9 +127,12 @@ fun FarmAppNavigation() {
                 farmId = farmId,
                 onBackClick = { navController.popBackStack() },
                 onBookClick = { navController.navigate("${AppScreens.BookingScreen.name}/$farmId") },
-                // PASS ARGUMENTS TO ROUTE
-                onChatClick = { ownerId, ownerName ->
-                    navController.navigate("${AppScreens.ChatScreen.name}/$ownerId/$ownerName")
+                onChatClick = { ownerId, ownerName, ownerImageUrl ->
+                    val safeUrl = if (!ownerImageUrl.isNullOrBlank()) {
+                        java.net.URLEncoder.encode(ownerImageUrl, "UTF-8")
+                    } else "none"
+
+                    navController.navigate("${AppScreens.ChatScreen.name}/$ownerId/$ownerName/$safeUrl")
                 }
             )
         }
@@ -289,19 +291,25 @@ fun FarmAppNavigation() {
 
         // 12. Chat Screen
         composable(
-            route = "${AppScreens.ChatScreen.name}/{ownerId}/{ownerName}",
+            route = "${AppScreens.ChatScreen.name}/{ownerId}/{ownerName}/{ownerImageUrl}",
             arguments = listOf(
                 navArgument("ownerId") { type = NavType.StringType },
-                navArgument("ownerName") { type = NavType.StringType }
+                navArgument("ownerName") { type = NavType.StringType },
+                navArgument("ownerImageUrl") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             val ownerId = backStackEntry.arguments?.getString("ownerId") ?: ""
             val ownerName = backStackEntry.arguments?.getString("ownerName") ?: "Farm Owner"
+            val encodedUrl = backStackEntry.arguments?.getString("ownerImageUrl") ?: "none"
+            val ownerImageUrl = if (encodedUrl != "none" && encodedUrl.isNotEmpty()) {
+                java.net.URLDecoder.decode(encodedUrl, "UTF-8")
+            } else ""
 
             ChatScreen(
                 onBackClick = { navController.popBackStack() },
                 ownerId = ownerId,
-                ownerName = ownerName
+                ownerName = ownerName,
+                ownerImageUrl = ownerImageUrl
             )
         }
 
@@ -309,8 +317,11 @@ fun FarmAppNavigation() {
         composable(AppScreens.ConversationListScreen.name) {
             ConversationListScreen(
                 onBackClick = { navController.popBackStack() },
-                onChatClick = { id, name ->
-                    navController.navigate("${AppScreens.ChatScreen.name}/$id/$name")
+                onChatClick = { id, name, imageUrl->
+                    val safeUrl = if (!imageUrl.isNullOrBlank()) {
+                        java.net.URLEncoder.encode(imageUrl, "UTF-8")
+                    } else "none"
+                    navController.navigate("${AppScreens.ChatScreen.name}/$id/$name/$safeUrl")
                 },
                 onHomeClick = {
                     navController.navigate(AppScreens.HomeScreen.name) {
@@ -365,7 +376,6 @@ fun FarmAppNavigation() {
     }
 }
 
-// A temporary helper to visualize screens before we design them
 @Composable
 fun PlaceholderScreen(name: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

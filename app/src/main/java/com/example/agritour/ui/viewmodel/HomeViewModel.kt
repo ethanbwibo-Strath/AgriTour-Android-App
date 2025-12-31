@@ -89,7 +89,6 @@ class HomeViewModel : ViewModel() {
     fun fetchUserProfile() {
         val currentUser = auth.currentUser ?: return
 
-        // Listen for real-time updates from Firestore
         db.collection("users").document(currentUser.uid)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) return@addSnapshotListener
@@ -99,7 +98,6 @@ class HomeViewModel : ViewModel() {
                 }
             }
     }
-
 
     fun signOut() {
         FirebaseAuth.getInstance().signOut()
@@ -336,7 +334,7 @@ class HomeViewModel : ViewModel() {
 
         chatRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val list = mutableListOf<Conversation>()
+                val tempList = mutableListOf<Conversation>()
 
                 snapshot.children.forEach { doc ->
                     val roomId = doc.key ?: ""
@@ -344,23 +342,39 @@ class HomeViewModel : ViewModel() {
                         val lastMsg = doc.children.lastOrNull()?.getValue(ChatMessage::class.java)
                         val otherId = roomId.split("_").find { it != currentUserId } ?: ""
 
-                        // We create the conversation with a placeholder name first
+                        // Create the initial placeholder
                         val convo = Conversation(
                             peerId = otherId,
-                            peerName = "Loading...", // Placeholder
+                            peerName = "Loading...", // [Screenshot 2]
+                            peerImageUrl = "",
                             lastMessage = lastMsg?.text ?: "No messages",
                             roomId = roomId,
                             timestamp = lastMsg?.timestamp ?: 0
                         )
-                        list.add(convo)
+                        tempList.add(convo)
 
-                        // Fetch the real name from Firestore
-                        fetchPeerName(otherId) { realName ->
-                            updateConversationName(otherId, realName)
-                        }
+                        // FETCH REAL DATA
+                        db.collection("users").document(otherId).get()
+                            .addOnSuccessListener { userDoc ->
+                                if (userDoc.exists()) {
+                                    val name = userDoc.getString("name") ?: "User"
+                                    val imageUrl = userDoc.getString("profileImageUrl") ?: ""
+
+                                    val index = tempList.indexOfFirst { it.peerId == otherId }
+                                    if (index != -1) {
+                                        tempList[index] = tempList[index].copy(
+                                            peerName = name,
+                                            peerImageUrl = imageUrl
+                                        )
+
+                                        _conversations.value = tempList.toList()
+                                    }
+                                }
+                            }
                     }
                 }
-                _conversations.value = list.sortedByDescending { it.timestamp }
+                // Initial post so the user sees SOMETHING immediately
+                _conversations.value = tempList.toList()
             }
             override fun onCancelled(error: DatabaseError) {}
         })

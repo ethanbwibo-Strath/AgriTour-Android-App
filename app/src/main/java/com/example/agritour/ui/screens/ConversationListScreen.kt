@@ -45,7 +45,7 @@ fun ConversationListScreen(
     onLearnClick: () -> Unit,
     onProfileClick: () -> Unit,
     onBackClick: () -> Unit,
-    onChatClick: (String, String) -> Unit, // (userId, name)
+    onChatClick: (String, String, String?) -> Unit,
     viewModel: HomeViewModel = viewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
@@ -178,9 +178,13 @@ fun ConversationListScreen(
                     itemsIndexed(filteredConversations) { index, chat ->
                         ConversationItem(
                             name = chat.peerName,
+                            imageUrl = chat.peerImageUrl,
                             lastMessage = chat.lastMessage,
                             timestamp = chat.timestamp,
-                            onClick = { onChatClick(chat.peerId, chat.peerName) }
+                            onClick = {
+                                val encodedUrl = java.net.URLEncoder.encode(chat.peerImageUrl ?: "", "UTF-8")
+                                onChatClick(chat.peerId, chat.peerName, encodedUrl)
+                            }
                         )
 
                         if (index < filteredConversations.lastIndex) {
@@ -200,6 +204,7 @@ fun ConversationListScreen(
 @Composable
 fun ConversationItem(
     name: String,
+    imageUrl: String?,
     lastMessage: String,
     timestamp: Long,
     onClick: () -> Unit
@@ -211,8 +216,11 @@ fun ConversationItem(
             .padding(vertical = 12.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AgriAvatar(name = name)
-
+        AgriAvatar(
+            name = name,
+            imageUrl = imageUrl,
+            size = 56.dp
+        )
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {

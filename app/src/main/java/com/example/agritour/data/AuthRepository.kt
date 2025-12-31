@@ -98,4 +98,14 @@ class AuthRepository {
             e.localizedMessage
         }
     }
+
+    suspend fun updatePassword(newPassword: String): String? {
+        return try {
+            val user = auth.currentUser ?: return "User not found"
+            user.updatePassword(newPassword).await()
+            null // Success
+        } catch (e: Exception) {
+            e.localizedMessage ?: "Failed to update password. Try logging out and back in."
+        }
+    }
 }

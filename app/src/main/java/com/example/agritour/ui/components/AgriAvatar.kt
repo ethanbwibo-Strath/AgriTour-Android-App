@@ -22,7 +22,7 @@ import com.example.agritour.ui.theme.AgriGreen
 @Composable
 fun AgriAvatar(
     name: String,
-    imageUrl: String? = null, // Add this parameter
+    imageUrl: String? = null,
     size: Dp = 56.dp,
     fontSize: TextUnit = 20.sp
 ) {
@@ -34,7 +34,6 @@ fun AgriAvatar(
         contentAlignment = Alignment.Center
     ) {
         if (!imageUrl.isNullOrBlank()) {
-            // Use Coil to load the image
             AsyncImage(
                 model = imageUrl,
                 contentDescription = "Profile Picture",
@@ -44,7 +43,9 @@ fun AgriAvatar(
         } else {
             val initial = if (name.isNotBlank() && name != "Loading...") {
                 name.trim().take(1).uppercase()
-            } else "?"
+            } else {
+                ""
+            }
 
             Text(text = initial, color = AgriGreen, fontWeight = FontWeight.Bold, fontSize = fontSize)
         }

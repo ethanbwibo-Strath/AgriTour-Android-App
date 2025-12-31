@@ -40,6 +40,8 @@ fun ChatScreen(
     onBackClick: () -> Unit,
     ownerId: String,
     ownerName: String,
+    ownerImageUrl: String?,
+
     viewModel: HomeViewModel = viewModel()
 ) {
     var messageText by remember { mutableStateOf("") }
@@ -68,9 +70,14 @@ fun ChatScreen(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        AgriAvatar(name = ownerName, size = 40.dp, fontSize = 16.sp)
-
+                        AgriAvatar(
+                            name = ownerName,
+                            imageUrl = ownerImageUrl,
+                            size = 40.dp,
+                            fontSize = 16.sp
+                        )
                         Spacer(modifier = Modifier.width(12.dp))
+
                         Column {
                             Text(
                                 text = ownerName,
