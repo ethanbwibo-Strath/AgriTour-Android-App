@@ -1,6 +1,7 @@
 package com.example.agritour.data
 
 import android.util.Log
+import com.example.agritour.utils.ImageUtils
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.toObject
 import com.google.firebase.firestore.toObjects
@@ -140,12 +141,16 @@ class FarmRepository {
         }
     }
 
-    suspend fun uploadImage(imageUri: android.net.Uri): String? {
+    suspend fun uploadImage(imageUri: android.net.Uri, context: android.content.Context): String? {
         return try {
+            val compressedData = ImageUtils.compressImage(context, imageUri)
+                ?: return null
+
             val filename = "farms/${System.currentTimeMillis()}.jpg"
             val ref = storage.reference.child(filename)
-            val uploadTask = ref.putFile(imageUri).await() // Upload
-            ref.downloadUrl.await().toString() // Get the URL
+
+            ref.putBytes(compressedData).await()
+            ref.downloadUrl.await().toString()
         } catch (e: Exception) {
             Log.e("FarmRepo", "Image upload failed", e)
             null

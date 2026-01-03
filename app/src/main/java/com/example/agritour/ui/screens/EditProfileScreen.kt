@@ -28,6 +28,7 @@ import com.example.agritour.data.AuthRepository
 import com.example.agritour.ui.components.AgriAvatar
 import com.example.agritour.ui.theme.AgriBackground
 import com.example.agritour.ui.theme.AgriGreen
+import com.example.agritour.ui.theme.TextBlack
 import com.example.agritour.ui.theme.TextGrey
 import com.example.agritour.ui.viewmodel.HomeViewModel
 import kotlinx.coroutines.launch
@@ -45,6 +46,7 @@ fun EditProfileScreen(
 ) {
     // 1. Collect the userProfile from ViewModel
     val userProfile by viewModel.userProfile.collectAsState()
+
 
     // 2. Local states for the input fields
     var name by remember { mutableStateOf("") }
@@ -72,10 +74,12 @@ fun EditProfileScreen(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Edit Profile", fontWeight = FontWeight.Bold) },
+                title = { Text("Edit Profile",
+                    color = TextBlack,
+                    fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = TextBlack)
                     }
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -164,7 +168,17 @@ fun EditProfileScreen(
                     label = { Text("Full Name") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = AgriBackground,
+                        focusedContainerColor = AgriBackground,
+                        focusedBorderColor = AgriGreen,
+                        unfocusedBorderColor = Color.Black,
+                        focusedTextColor = TextBlack,
+                        unfocusedTextColor = TextBlack,
+                        focusedLabelColor = AgriGreen,
+                        unfocusedLabelColor = Color.Black
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -175,7 +189,17 @@ fun EditProfileScreen(
                     label = { Text("Email Address") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = AgriBackground,
+                        focusedContainerColor = AgriBackground,
+                        focusedBorderColor = AgriGreen,
+                        unfocusedBorderColor = Color.Black,
+                        focusedTextColor = TextBlack,
+                        unfocusedTextColor = TextBlack,
+                        focusedLabelColor = AgriGreen,
+                        unfocusedLabelColor = Color.Black
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -187,7 +211,17 @@ fun EditProfileScreen(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                     visualTransformation = PasswordVisualTransformation(),
-                    singleLine = true
+                    singleLine = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = AgriBackground,
+                        focusedContainerColor = AgriBackground,
+                        focusedBorderColor = AgriGreen,
+                        unfocusedBorderColor = Color.Black,
+                        focusedTextColor = TextBlack,
+                        unfocusedTextColor = TextBlack,
+                        focusedLabelColor = AgriGreen,
+                        unfocusedLabelColor = Color.Black
+                    )
                 )
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -206,7 +240,7 @@ fun EditProfileScreen(
                             // 2. Upload image if user picked a new one
                             var imageError: String? = null
                             if (selectedImageUri != null) {
-                                imageError = authRepository.uploadProfileImage(selectedImageUri!!)
+                                imageError = authRepository.uploadProfileImage(selectedImageUri!!, context)
                             }
 
                             if (password.isNotEmpty()) {
@@ -230,12 +264,16 @@ fun EditProfileScreen(
                     },
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = AgriGreen),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = AgriGreen,
+                        contentColor = Color.Black
+
+                    ),
                     enabled = !isLoading
                 ) {
                     if (isLoading) {
                         CircularProgressIndicator(
-                            color = Color.White,
+                            color = AgriGreen,
                             modifier = Modifier.size(24.dp),
                             strokeWidth = 2.dp
                         )

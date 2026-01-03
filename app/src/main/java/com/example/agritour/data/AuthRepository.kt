@@ -1,5 +1,8 @@
 package com.example.agritour.data
 
+import android.content.Context
+import android.net.Uri
+import com.example.agritour.utils.ImageUtils
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
@@ -50,10 +53,6 @@ class AuthRepository {
         }
     }
 
-    fun signOut() {
-        auth.signOut()
-    }
-
     suspend fun updateProfile(newName: String, newEmail: String): String? {
         return try {
             val user = auth.currentUser ?: return "Not logged in"
@@ -77,19 +76,43 @@ class AuthRepository {
         }
     }
 
-    suspend fun uploadProfileImage(imageUri: android.net.Uri): String? {
+//    suspend fun uploadProfileImage(imageUri: android.net.Uri): String? {
+//        return try {
+//            val userId = auth.currentUser?.uid ?: return null
+//            // Create a reference to "profile_images/USER_ID.jpg"
+//            val fileRef = storage.reference.child("profile_images/$userId.jpg")
+//
+//            // Upload the file
+//            fileRef.putFile(imageUri).await()
+//
+//            // Get the downloadable URL
+//            val downloadUrl = fileRef.downloadUrl.await().toString()
+//
+//            // Update Firestore with the new image URL
+//            db.collection("users").document(userId)
+//                .update("profileImageUrl", downloadUrl).await()
+//
+//            null // Success
+//        } catch (e: Exception) {
+//            e.localizedMessage
+//        }
+//    }
+
+    suspend fun uploadProfileImage(imageUri: Uri, context: Context): String? {
         return try {
-            val userId = auth.currentUser?.uid ?: return null
-            // Create a reference to "profile_images/USER_ID.jpg"
+            val userId = auth.currentUser?.uid ?: return "User not found"
+
+            // 1. Compress the image first
+            val compressedData = ImageUtils.compressImage(context, imageUri)
+                ?: return "Compression failed"
+
             val fileRef = storage.reference.child("profile_images/$userId.jpg")
 
-            // Upload the file
-            fileRef.putFile(imageUri).await()
+            // 2. Upload the ByteArray
+            fileRef.putBytes(compressedData).await()
 
-            // Get the downloadable URL
+            // 3. Get URL and update Firestore
             val downloadUrl = fileRef.downloadUrl.await().toString()
-
-            // Update Firestore with the new image URL
             db.collection("users").document(userId)
                 .update("profileImageUrl", downloadUrl).await()
 

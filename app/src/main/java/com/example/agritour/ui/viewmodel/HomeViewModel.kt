@@ -238,6 +238,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    // In HomeViewModel.kt
     fun addNewFarm(
         name: String,
         location: String,
@@ -245,22 +246,21 @@ class HomeViewModel : ViewModel() {
         type: String,
         description: String,
         imageUri: android.net.Uri?,
+        context: android.content.Context,
         onResult: (Boolean) -> Unit
     ) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
 
         viewModelScope.launch {
-            // 1. Upload Image (if exists)
             var imageUrl = ""
             if (imageUri != null) {
-                imageUrl = repository.uploadImage(imageUri) ?: ""
+                imageUrl = repository.uploadImage(imageUri, context) ?: ""
                 if (imageUrl.isEmpty()) {
-                    onResult(false) // Upload failed
+                    onResult(false)
                     return@launch
                 }
             }
 
-            // 2. Create Farm Object
             val newFarm = Farm(
                 ownerId = userId,
                 name = name,
@@ -272,9 +272,8 @@ class HomeViewModel : ViewModel() {
                 rating = 0.0
             )
 
-            // 3. Save to Database
             val success = repository.addFarm(newFarm)
-            if (success) fetchMyFarms() // Refresh the list
+            if (success) fetchMyFarms()
             onResult(success)
         }
     }

@@ -82,23 +82,25 @@ fun ConversationListScreen(
                         Text(
                             "Messages",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = TextBlack,
+                            modifier = Modifier.weight(1f)
                         )
                     }
 
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        placeholder = { Text("Search messages...", fontSize = 14.sp) },
+                        placeholder = { Text("Search messages...", fontSize = 14.sp, color = Color.Black) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(start = 16.dp, end = 16.dp, bottom = 12.dp, top = 4.dp)
-                            .height(52.dp), // Fixed height makes it look sleeker
-                        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Gray, modifier = Modifier.size(20.dp)) },
+                            .height(52.dp),
+                        leadingIcon = { Icon(Icons.Default.Search, null, tint = Color.Black, modifier = Modifier.size(20.dp)) },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
                                 IconButton(onClick = { searchQuery = "" }) {
-                                    Icon(Icons.Default.Close, null, tint = Color.Gray)
+                                    Icon(Icons.Default.Close, null, tint = Color.Black)
                                 }
                             }
                         },
@@ -109,7 +111,9 @@ fun ConversationListScreen(
                             unfocusedContainerColor = AgriBackground,
                             focusedContainerColor = AgriBackground,
                             focusedBorderColor = AgriGreen,
-                            unfocusedBorderColor = Color.Transparent
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedTextColor = TextBlack,
+                            unfocusedTextColor = TextBlack
                         )
                     )
                 }

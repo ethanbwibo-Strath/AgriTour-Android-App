@@ -175,7 +175,8 @@ fun AddFarmScreen(
                             price = price.toIntOrNull() ?: 0,
                             type = type,
                             description = description,
-                            imageUri = imageUri
+                            imageUri = imageUri,
+                            context
                         ) { success ->
                             isUploading = false
                             if (success) {

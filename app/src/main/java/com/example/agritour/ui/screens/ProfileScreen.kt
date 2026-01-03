@@ -1,7 +1,14 @@
 package com.example.agritour.ui.screens
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -10,6 +17,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.automirrored.outlined.Help
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.automirrored.outlined.Message
 import androidx.compose.material.icons.filled.Agriculture
 import androidx.compose.material.icons.filled.Home
@@ -28,11 +37,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -71,6 +85,14 @@ fun ProfileScreen(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
+            containerColor = Color(0xFFFFEBEE),
+            modifier = Modifier.border(
+                width = 1.dp,
+                color = Color.Red,
+                shape = RoundedCornerShape(28.dp)
+            ),
+            textContentColor = Color.Black,
+            titleContentColor = Color.Red,
             title = { Text("Sign Out", fontWeight = FontWeight.Bold) },
             text = { Text("Are you sure you want to log out of AgriTour?") },
             confirmButton = {
@@ -78,17 +100,28 @@ fun ProfileScreen(
                     viewModel.signOut()
                     onLogoutClick()
                     showLogoutDialog = false
-                }) {
-                    Text("Log Out", color = Color.Red, fontWeight = FontWeight.Bold)
+                },colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Red,
+                ),
+                    interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
+                    }
+                ) {
+                    Text("Log Out", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showLogoutDialog = false }) {
-                    Text("Cancel", color = TextBlack)
+                TextButton(onClick = { showLogoutDialog = false },
+                    colors = ButtonDefaults.textButtonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = Color.Black,
+                ),
+                    interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
+                    }
+                ) {
+                    Text("Cancel")
                 }
-            },
-            containerColor = Color.White,
-            shape = RoundedCornerShape(16.dp)
+            }
         )
     }
 
@@ -151,26 +184,32 @@ fun ProfileScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    AgriAvatar(
-                        name = userProfile?.name ?: "",
-                        imageUrl = userProfile?.profileImageUrl, // Passes the URL from Firestore
-                        size = 100.dp,
-                        fontSize = 36.sp
-                    )
+                    if (userProfile == null) {
+                        Box(Modifier.size(100.dp).clip(CircleShape).shimmerEffect())
+                        Spacer(Modifier.height(16.dp))
+                        Box(Modifier.width(150.dp).height(24.dp).shimmerEffect())
+                    } else {
+                        AgriAvatar(
+                            name = userProfile?.name ?: "",
+                            imageUrl = userProfile?.profileImageUrl, // Passes the URL from Firestore
+                            size = 100.dp,
+                            fontSize = 36.sp
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(
-                        text = userProfile?.name ?: "Loading Name...",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = TextBlack
-                    )
-                    Text(
-                        text = userProfile?.email ?: "Loading Email...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextGrey
-                    )
+                        Text(
+                            text = userProfile?.name ?: "Loading Name...",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = TextBlack
+                        )
+                        Text(
+                            text = userProfile?.email ?: "Loading Email...",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextGrey
+                        )
+                    }
                 }
             }
 
@@ -181,14 +220,15 @@ fun ProfileScreen(
                     text = if (isFarmer) "Farm Management" else "My Account",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
+                    color = TextBlack
                 )
 
                 MenuCard {
                     if (isFarmer) {
                         ProfileMenuItem(Icons.Outlined.DateRange, "My Bookings", onMyBookingsClick)
                         HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
-                        ProfileMenuItem(Icons.Outlined.List, "My Farm Listings", onMyListingsClick)
+                        ProfileMenuItem(Icons.AutoMirrored.Outlined.List, "My Farm Listings", onMyListingsClick)
                         HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
                         ProfileMenuItem(Icons.Outlined.BarChart, "Revenue Analytics", onRevenueClick)
                         HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
@@ -210,15 +250,16 @@ fun ProfileScreen(
                     text = "General",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp, start = 8.dp),
+                    color = TextBlack
                 )
 
                 MenuCard {
                     ProfileMenuItem(Icons.Outlined.Person, "Edit Profile", onMyProfileClick)
                     HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
                     ProfileMenuItem(Icons.Outlined.Settings, "Settings", {})
-                    HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
-                    ProfileMenuItem(Icons.AutoMirrored.Outlined.Help, "Help & Support", {})
+//                    HorizontalDivider(thickness = 0.5.dp, color = AgriBackground)
+//                    ProfileMenuItem(Icons.AutoMirrored.Outlined.Help, "Help & Support", {})
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -244,6 +285,25 @@ fun ProfileScreen(
 }
 
 // --- HELPER COMPONENTS ---
+
+fun Modifier.shimmerEffect(): Modifier = composed {
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    val transition = rememberInfiniteTransition(label = "shimmer")
+    val startOffsetX by transition.animateFloat(
+        initialValue = -2 * size.width.toFloat(),
+        targetValue = 2 * size.width.toFloat(),
+        animationSpec = infiniteRepeatable(animation = tween(1200, easing = LinearEasing)),
+        label = "shimmer"
+    )
+
+    background(
+        brush = Brush.linearGradient(
+            colors = listOf(Color(0xFFEBEBF4), Color(0xFFF4F4F4), Color(0xFFEBEBF4)),
+            start = Offset(startOffsetX, 0f),
+            end = Offset(startOffsetX + size.width.toFloat(), size.height.toFloat())
+        )
+    ).onGloballyPositioned { size = it.size }
+}
 
 fun Modifier.scale(scale: Float): Modifier = this.then(
     Modifier.graphicsLayer(scaleX = scale, scaleY = scale)
@@ -281,6 +341,9 @@ fun ProfileMenuItem(
             color = TextBlack,
             modifier = Modifier.weight(1f)
         )
-        Icon(Icons.Outlined.KeyboardArrowRight, contentDescription = null, tint = Color.LightGray)
+        Icon(
+            Icons.AutoMirrored.Outlined.KeyboardArrowRight,
+            contentDescription = null,
+            tint = TextBlack.copy(alpha = 0.6f))
     }
 }
