@@ -5,6 +5,8 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -47,8 +49,6 @@ fun EditProfileScreen(
     // 1. Collect the userProfile from ViewModel
     val userProfile by viewModel.userProfile.collectAsState()
 
-
-    // 2. Local states for the input fields
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -62,8 +62,8 @@ fun EditProfileScreen(
         contract = ActivityResultContracts.PickVisualMedia(),
         onResult = { uri -> selectedImageUri = uri }
     )
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
-    // 3. Sync local state when userProfile is loaded from Firestore
     LaunchedEffect(userProfile) {
         userProfile?.let {
             name = it.name
@@ -140,8 +140,6 @@ fun EditProfileScreen(
                     .fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // If the user picked a local image, we could show a preview here
-                // For now, we use the initials avatar
                 AgriAvatar(
                     name = name,
                     imageUrl = userProfile?.profileImageUrl,
@@ -280,6 +278,66 @@ fun EditProfileScreen(
                     } else {
                         Text("Save Changes", fontWeight = FontWeight.Bold)
                     }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                TextButton(
+                    onClick = { showDeleteDialog = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Delete Account", color = Color.Red.copy(alpha = 0.7f), fontWeight = FontWeight.Medium)
+                }
+
+                if (showDeleteDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDeleteDialog = false },
+                        containerColor = Color(0xFFFFEBEE),
+                        modifier = Modifier.border(
+                            width = 1.dp,
+                            color = Color.Red,
+                            shape = RoundedCornerShape(28.dp)
+                        ),
+                        textContentColor = Color.Black,
+                        titleContentColor = Color.Red,
+                        title = { Text("Delete Account?", fontWeight = FontWeight.Bold) },
+                        text = { Text("This action is permanent and will delete all your bookings and farm data. Are you sure?") },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                scope.launch {
+                                    val error = authRepository.deleteUserAccount()
+                                    if (error == null) {
+                                        Toast.makeText(context, "Account deleted", Toast.LENGTH_SHORT).show()
+                                        viewModel.signOut()
+                                    } else {
+                                        Toast.makeText(context, error, Toast.LENGTH_LONG).show()
+                                    }
+                                    showDeleteDialog = false
+                                }
+                            },
+                            colors = ButtonDefaults.textButtonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = Color.Red,
+                            ),
+                                interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
+                                }
+                            ) {
+                                Text("Delete Permanently", fontWeight = FontWeight.Bold)
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDeleteDialog = false },
+                                colors = ButtonDefaults.textButtonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = Color.Black,
+                                ),
+                                interactionSource = remember { MutableInteractionSource() }.also { interactionSource ->
+                                }
+                            ) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
                 }
             }
         }

@@ -76,28 +76,6 @@ class AuthRepository {
         }
     }
 
-//    suspend fun uploadProfileImage(imageUri: android.net.Uri): String? {
-//        return try {
-//            val userId = auth.currentUser?.uid ?: return null
-//            // Create a reference to "profile_images/USER_ID.jpg"
-//            val fileRef = storage.reference.child("profile_images/$userId.jpg")
-//
-//            // Upload the file
-//            fileRef.putFile(imageUri).await()
-//
-//            // Get the downloadable URL
-//            val downloadUrl = fileRef.downloadUrl.await().toString()
-//
-//            // Update Firestore with the new image URL
-//            db.collection("users").document(userId)
-//                .update("profileImageUrl", downloadUrl).await()
-//
-//            null // Success
-//        } catch (e: Exception) {
-//            e.localizedMessage
-//        }
-//    }
-
     suspend fun uploadProfileImage(imageUri: Uri, context: Context): String? {
         return try {
             val userId = auth.currentUser?.uid ?: return "User not found"
@@ -129,6 +107,24 @@ class AuthRepository {
             null // Success
         } catch (e: Exception) {
             e.localizedMessage ?: "Failed to update password. Try logging out and back in."
+        }
+    }
+
+    suspend fun deleteUserAccount(): String? {
+        return try {
+            val user = auth.currentUser ?: return "User not found"
+            val userId = user.uid
+
+            // 1. Delete Firestore document first
+            db.collection("users").document(userId).delete().await()
+
+            // 2. Delete the Auth account
+            user.delete().await()
+
+            null // Success
+        } catch (e: Exception) {
+            // If they haven't logged in recently, Firebase will throw an exception
+            e.localizedMessage ?: "Please log out and log back in to verify it's you before deleting."
         }
     }
 }
