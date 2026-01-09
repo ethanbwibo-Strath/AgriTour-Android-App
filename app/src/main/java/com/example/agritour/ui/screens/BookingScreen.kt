@@ -51,7 +51,7 @@ fun BookingScreen(
 
     var date by remember { mutableStateOf("2024-10-26") }
     var time by remember { mutableStateOf("14:00") }
-    var groupSize by remember { mutableIntStateOf(4) }
+    var groupSize by remember { mutableIntStateOf(1) }
     var selectedPayment by remember { mutableStateOf("M-Pesa") }
     var isBooking by remember { mutableStateOf(false) }
     val totalAmount = groupSize * pricePerPerson
@@ -142,7 +142,8 @@ fun BookingScreen(
             Text(
                 "Tour Details",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = TextGrey
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -157,7 +158,9 @@ fun BookingScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = AgriGreen
+                    focusedBorderColor = AgriGreen,
+                    unfocusedTextColor = TextBlack,
+                    focusedTextColor = TextBlack
                 )
             )
 
@@ -174,14 +177,16 @@ fun BookingScreen(
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(
                     unfocusedBorderColor = Color(0xFFE0E0E0),
-                    focusedBorderColor = AgriGreen
+                    focusedBorderColor = AgriGreen,
+                    unfocusedTextColor = TextBlack,
+                    focusedTextColor = TextBlack
                 )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Group Size Counter
-            Label("Group Size (Min 4 people)")
+            Label("Group Size (Min 1 person)")
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -189,14 +194,15 @@ fun BookingScreen(
                 // Minus Button
                 CircularIconButton(
                     icon = Icons.Default.Remove,
-                    enabled = groupSize > 4, // Logic: Disable if 4
-                    onClick = { if (groupSize > 4) groupSize-- }
+                    enabled = groupSize > 1, //Disable if 1
+                    onClick = { if (groupSize > 1) groupSize-- }
                 )
 
                 Text(
                     text = groupSize.toString(),
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = TextBlack
                 )
 
                 // Plus Button
@@ -213,7 +219,8 @@ fun BookingScreen(
             Text(
                 "Payment Options",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = TextGrey
             )
             Spacer(modifier = Modifier.height(16.dp))
 

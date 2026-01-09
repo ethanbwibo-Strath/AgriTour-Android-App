@@ -207,7 +207,7 @@ fun FarmDetailScreen(
                         name = owner?.name ?: "Owner",
                         imageUrl = owner?.profileImageUrl,
                         size = 56.dp,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     )
 
                     Spacer(modifier = Modifier.width(16.dp))
@@ -215,13 +215,14 @@ fun FarmDetailScreen(
                     Column {
                         // DYNAMIC NAME
                         Text(
-                            text = owner?.name ?: "Farm Owner's Name", // <--- USE REAL NAME
+                            text = owner?.name ?: "Farm Owner's Name",
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = AgriGreen
                         )
                         // Role/Email
                         Text(
-                            text = "Verified Farmer", // You could also use owner?.email
+                            text = owner?.email ?: "Farm Owner's Email",
                             style = MaterialTheme.typography.bodyMedium,
                             color = TextGrey
                         )
@@ -244,7 +245,7 @@ fun FarmDetailScreen(
                 ) {
                     Icon(Icons.AutoMirrored.Outlined.Message, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("Chat with Owner")
+                    Text("Chat with ${owner?.name ?: "Farm Owner"}")
                 }
             }
 

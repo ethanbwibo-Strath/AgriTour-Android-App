@@ -16,5 +16,5 @@ data class Booking(
     val totalPrice: Int = 0,
     val status: String = "Pending",
     val paymentMethod: String = "",
-    @ServerTimestamp val createdAt: Date? = null
+    val timestamp: Long = System.currentTimeMillis()
 )
