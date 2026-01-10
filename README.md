@@ -1,4 +1,4 @@
-# AgriTour 🌾
+# AgriTour 🌿
 **Bridging the gap between theoretical agriculture studies and practical field experience.**
 
 AgriTour is a native Android application that connects students and agri-enthusiasts with local farmers for immersive, hands-on learning tours. It serves as a marketplace for agricultural knowledge, allowing users to book tours, communicate with farmers, and explore various agricultural practices.
