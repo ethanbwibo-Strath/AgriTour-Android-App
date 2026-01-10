@@ -1,9 +1,9 @@
-#AgriTour 🌾
+# AgriTour 🌾
 **Bridging the gap between theoretical agriculture studies and practical field experience.**
 
 AgriTour is a native Android application that connects students and agri-enthusiasts with local farmers for immersive, hands-on learning tours. It serves as a marketplace for agricultural knowledge, allowing users to book tours, communicate with farmers, and explore various agricultural practices.
 
-##🚀 Technical Highlights & Problem Solving
+## 🚀 Technical Highlights & Problem Solving
 This project showcases advanced Android development patterns, specifically addressing real-world performance constraints:
 
 **Efficient Data Pipeline**: Implemented a custom image compression utility using Bitmap.compress that reduces 5MB+ high-resolution camera photos to ~300KB before uploading to Firebase Storage.
@@ -14,7 +14,7 @@ This project showcases advanced Android development patterns, specifically addre
 
 **Security & Privacy**: Built a secure authentication flow including confirmation dialogs for destructive actions like Account Deletion and Logging Out.
 
-##✨ Key Features
+## ✨ Key Features
 **Explore Farms**: Browse diverse farm listings with detailed descriptions, pricing, and ratings.
 
 **Instant Booking**: Interactive booking system with group size management and payment method selection (M-Pesa/Card).
@@ -23,7 +23,7 @@ This project showcases advanced Android development patterns, specifically addre
 
 **Farmer Dashboard**: Dedicated interface for farmers to manage their listings and view incoming tour requests.
 
-##🛠 Tech Stack
+## 🛠 Tech Stack
 **UI**: Jetpack Compose (Material 3) with custom themeing.
 
 **Backend**: Firebase Authentication, Cloud Firestore, Realtime Database, and Firebase Storage.
@@ -32,14 +32,14 @@ This project showcases advanced Android development patterns, specifically addre
 
 **Image Loading**: Coil for optimized image caching and rendering.
 
-##📸 Screenshots
+## 📸 Screenshots
 
 |                      Splash Screen                       |                     Home & Explore                     |                       User Profile                        |                     Real-time Chat                     |                      Booking Process                      |
 |:--------------------------------------------------------:|:------------------------------------------------------:|:---------------------------------------------------------:|:------------------------------------------------------:|:---------------------------------------------------------:|
 | <img src="screenshots/splash_screen.jpeg" width="200" /> | <img src="screenshots/home_screen.jpeg" width="200" /> | <img src="screenshots/profile_screen.jpeg" width="200" /> | <img src="screenshots/chat_screen.jpeg" width="200" /> | <img src="screenshots/booking_screen.jpeg" width="200" /> |
 
 
-##🚀 Future Scope & Roadmap
+## 🚀 Future Scope & Roadmap
 While the current version of AgriTour provides a solid foundation for agri-education, the following features are planned for future releases:
 
 **Integrated M-Pesa API (Daraja)**: Moving beyond manual selection to automated in-app payment processing, providing instant transaction confirmation for both farmers and visitors.
